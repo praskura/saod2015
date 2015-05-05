@@ -1,0 +1,446 @@
+#include "stdafx.h"
+#include "Node.h"
+#include "STR-TREE.h"
+#include <math.h>
+
+StrTree::StrTree(int BranchingFactor,int CoefExp, int X, int Y)
+{
+	this->Stack=&NodeStack();
+	int ColX=X/CoefExp;
+	int ColY=Y/CoefExp;
+	int ColNodes= ColX*ColY;
+	int Top=CoefExp;
+	int Left=0;
+	int Bottom=0;
+	int Right=CoefExp;
+	Node **ArrOfLeafs=new Node*[ColNodes];
+	Node **ArrOfNodes=new Node*[ColNodes];
+	//заполняем массив с минимальными квадратми
+	for(int i=0; i<ColY; i++)
+	{
+		for(int j=0; j<ColX; j++)
+		{
+			MBR *CurrentMBR=new MBR(Top,Bottom,Left,Right,0,0);
+			Node *NewNode=new Node(BranchingFactor,*CurrentMBR,CoefExp);
+			ArrOfLeafs[j+ColX*i]=NewNode;
+			Left+=CoefExp;
+			Right+=CoefExp;
+		
+		}
+		Left=0;
+		Right=CoefExp;
+		Top+=CoefExp;
+		Bottom+=CoefExp;
+	}
+
+	bool flagY=false;
+	bool flagX=false;
+	if(ColX%2!=0)
+		bool flag = true;
+	//собираем квадраты в области
+	int p=ColNodes%2;
+	while(true)
+	{
+		ColX=ColX/2;
+
+		int pos=0;
+		int CoefUnific=1;
+		for(int k=0; k<ColY; k++)
+		{
+			for(int i=0; i<ColX; i++)
+			{
+				if(i==ColX-1 && flagX)
+					CoefUnific=2;
+				MBR* MbrLeft=ArrOfLeafs[pos]->GetMBR();
+				MBR* MbrRight=ArrOfLeafs[pos+CoefUnific]->GetMBR();
+				int Top,Bottom,Left,Right=0;
+				if(flagY)//собираем по у
+				{
+					Top=MbrRight->Top;
+					Left=MbrRight->Left;
+					Bottom=MbrLeft->Bottom;
+					Right=MbrLeft->Right;
+				}
+				else//собираем по х
+				{
+					Top=MbrLeft->Top;
+					Left=MbrLeft->Left;
+					Bottom=MbrRight->Bottom;
+					Right=MbrRight->Right;
+				}
+				MBR *NewMBR=new MBR(Top,Bottom,Left,Right,0,0);
+				Node *NewNode=new Node(BranchingFactor,*NewMBR,CoefExp);
+				printf("%d,%d %d,%d: %d\n",Left,Top,Right,Bottom,k*ColX+i);
+				for(int z=0; z<CoefUnific+1; z++, pos++)
+					NewNode->InsertNode(ArrOfLeafs[pos]);
+				ArrOfLeafs[k*ColX+i]=NewNode;
+			}
+			CoefUnific=1;
+		}
+		if(ColX==1 && !flagY)//если закончили собирать по х, то собираем по у
+		{
+			ColX=ColY;
+			flagY=true;
+		}
+		if(flagY && ColX==1)//закончили собирать по у - выходим
+			break;
+		if(ColX%2!=0)//выясняем как делить область
+			flagX = true;
+		else
+			flagX = false;
+		CoefUnific=1;
+		pos=0;
+	}
+	this->Root=ArrOfLeafs[0];
+	this->CoefExp=CoefExp;
+}
+
+void StrTree::InsertTrajectory(Traject* NewTraject, int T0, int T1)
+{
+	//Node *InsertedNode=new Node(this->Root->GetFactor(),*new MBR(NewTraject,T0,T1),NewTraject, this->CoefExp);
+	////int RootLenth=0;
+	////if((RootLenth=this->Extend(InsertedNode,this->Root)))
+	////{	
+	//	MBR *RootMbr=this->Root->GetMBR();
+	//	MBR *NewMbr=new MBR(NewTraject,T0,T1);
+	//	//RootMbr->ExpMbr(NewMbr);
+	//	//this->Root->ReduceDec(RootLenth);
+	//	delete NewMbr;
+	//	Node *PlaceInsert=this->FindNode(this->Root,NewTraject,T0,T1);
+	//	if(PlaceInsert)
+	//	{
+	//		int Lenth=0;
+	//		if(!PlaceInsert->Full() && (Lenth=this->Extend(PlaceInsert,InsertedNode)))
+	//		{
+	//			PlaceInsert->InsertTraject(NewTraject);
+	//			MBR *PlaseIns=PlaceInsert->GetMBR();
+	//			MBR *NewMbr=new MBR(NewTraject,T0,T1);
+	//			PlaseIns->ExpMbr(NewMbr);
+	//			PlaceInsert->ReduceDec(Lenth);
+	//			delete NewMbr;
+	//			return;
+	//		}
+	//		else
+	//		{
+	//			Node *Parent=this->Stack->Pop();
+	//			if(!Parent->Full() && (Lenth=this->Extend(Parent,InsertedNode)))
+	//			{
+	//				Node *NewNode=Parent->NodePartition(NewTraject,T0,T1,this->CoefExp);
+	//				MBR *ParentMbr=Parent->GetMBR();
+	//				MBR *NewMbr=new MBR(NewTraject,T0,T1);
+	//				ParentMbr->ExpMbr(NewMbr);
+	//				Parent->ReduceDec(Lenth);
+	//				delete NewMbr;
+	//				return;
+	//			}
+	//			else
+	//				Node* NewNode=this->ChooseNode(this->Root, NewTraject,T0,T1, Parent, 0);
+	//		}
+	//	}
+	//	Node* NewNode=this->ChooseNode(this->Root, NewTraject,T0,T1, NULL, 0);
+	////}
+	////else
+	////{
+	////	MBR *RootMbr=this->Root->GetMBR();
+	////	MBR *NewMbr=new MBR(NewTraject,T0,T1);
+	////	RootMbr->ExpMbr(NewMbr);
+	////	this->ExtendRoot(NewTraject,T0,T1);
+	////}
+	Node *PlaceInsert=this->FindNode(this->Root,NewTraject,T0,T1);
+	if(PlaceInsert)
+	{
+		if(!PlaceInsert->FullTraject())
+		{
+			PlaceInsert->InsertTraject(NewTraject);
+			//time
+			return;
+
+		}
+		else
+		{
+			Node *Parent=this->Stack->Pop();
+			if(!Parent->Full())
+				Node *NewNode=Parent->NodePartition(NewTraject,T0,T1,this->CoefExp);
+			//time
+		}
+	}
+	else
+		Node* NewNode=this->ChooseNode(this->Root, NewTraject,T0,T1, NULL, 0);
+}
+
+Node* StrTree::FindNode(Node *Root, Traject *Trajectory, int T0, int T1)
+{
+	if(!Root->Leaf())
+	{
+		this->Stack->Push(*Root);
+		MBR *InsrtMbr=new MBR(Trajectory,T0,T1);
+		for(NodeListElem *Tmp=Root->Childs; Tmp; Tmp=Tmp->Next)
+		{
+			MBR *RootMbr=Tmp->Elem->GetMBR();
+			if(RootMbr->Intersection(*InsrtMbr) /*&& this->Extend(Tmp->Elem, Root)*/)
+			{
+				this->FindNode(Tmp->Elem,Trajectory,T0,T1);
+			}
+		}
+		return NULL;
+	}
+	else
+	{
+		for(TrajectList *Tmp=Root->Trajectories; Tmp; Tmp=Tmp->Next)
+		{
+			if(Tmp->Trajetory->Connected(Trajectory))
+				return Root;
+		}
+		return NULL;
+	}
+}
+
+Node* StrTree::ChooseNode(Node *Root, Traject *Trajectory,int T0, int T1, Node* CheckedNode, int Level)
+{
+	if(!Root->Leaf() /*|| Level<this->Levels*/)
+	{
+		this->Stack->Push(*Root);
+		MBR *InsrtMbr=new MBR(Trajectory,T0,T1);
+		for(NodeListElem *Tmp=Root->Childs; Tmp; Tmp=Tmp->Next)
+		{
+			MBR *RootMbr=Tmp->Elem->GetMBR();
+			if(RootMbr->Intersection(*InsrtMbr) /*&& this->Extend(Tmp->Elem,Root)*/)
+			{
+				//RootMbr->ExpMbr(InsrtMbr);
+				this->ChooseNode(Tmp->Elem,Trajectory,T0,T1,CheckedNode,Level+1);
+			}
+		}
+		//Node *CurrentNode=Root;
+		//for(int i =0; i<(this->Levels-Level)-1; i++)
+		//{
+		//	Node *NewNode=new Node(Root->GetFactor(),*InsrtMbr,this->CoefExp);
+		//	//int Coef=Root->
+		//	Root->InsertNode(NewNode);
+		//	Root=NewNode;
+
+		//}
+		//Node *NewNode=new Node(Root->GetFactor(),*InsrtMbr,Trajectory, this->CoefExp);
+		//Root->InsertNode(NewNode);
+		return  Root;
+	}
+	else
+	{
+		if(!Root->FullTraject())
+		{
+			Root->InsertTraject(Trajectory);
+			return Root;
+		}
+		else
+		{
+			Node *Pre=this->Stack->Pop();
+			return Pre->NodePartition(Trajectory,T0,T1,this->CoefExp);
+		}
+	}
+}
+
+void StrTree::ExtendRoot(Traject *NewTraject, int T0, int T1)
+{
+	MBR *RootMbr=this->Root->GetMBR();
+	MBR *MbrNewRoot=new MBR(NewTraject,T0,T1);
+	int RootXC=(RootMbr->Right-RootMbr->Left)/2;
+	int RootYC=(RootMbr->Top-RootMbr->Bottom)/2;
+	int NewRootXC=(MbrNewRoot->Right-MbrNewRoot->Left)/2 - RootXC;
+	int NewRootYC=(MbrNewRoot->Top-MbrNewRoot->Bottom)/2 - RootYC;
+	int Lenth=pow((NewRootXC*NewRootXC)+(NewRootYC*NewRootYC),0.5);
+	int NewLevels=Lenth/this->CoefExp;
+	for(int i=0; i<NewLevels; i++)
+	{
+		MBR *NewMbr=new MBR(*this->Root->GetMBR());
+		
+		if(i==NewLevels-1)
+			NewMbr->ExpMbr(MbrNewRoot);
+		else
+		{
+			NewMbr->ExpMbrOnKoef(MbrNewRoot,this->CoefExp);
+		}
+		Node *InsertedNode=new Node(this->Root->GetFactor(),*NewMbr,this->CoefExp);
+		InsertedNode->InsertNode(this->Root);
+		this->Root=InsertedNode;
+		this->Levels++;
+		this->Root->IncDec(i+1);
+	}
+	//this->InsertTrajectory(NewTraject,T0,T1);
+	this->ChooseNode(this->Root,NewTraject,T0,T1,NULL,0);
+}
+
+
+
+
+	this->Stack=new NodeStack();
+	int ColX=X/CoefExp;
+	int ColY=Y/CoefExp;
+	int ColNodes= ColX*ColY;
+	int Top=CoefExp;
+	int Left=0;
+	int Bottom=0;
+	int Right=CoefExp;
+	Node **ArrOfLeafs=new Node*[ColNodes];
+	Node **ArrOfNodes=new Node*[ColNodes];
+	//заполняем массив с минимальными квадратми
+	for(int i=0; i<ColY; i++)
+	{
+		for(int j=0; j<ColX; j++)
+		{
+			MBR *CurrentMBR=new MBR(Top,Bottom,Left,Right,-1,-1);
+			Node *NewNode=new Node(BranchingFactor,*CurrentMBR,CoefExp);
+			ArrOfLeafs[j+ColX*i]=NewNode;
+			Left+=CoefExp;
+			Right+=CoefExp;
+		
+		}
+		Left=0;
+		Right=CoefExp;
+		Top+=CoefExp;
+		Bottom+=CoefExp;
+	}
+
+	bool flagY=false;
+	bool flagX=false;
+	if(ColX%2!=0)
+		bool flag = true;
+	//собираем квадраты в области
+	int p=ColNodes%2;
+	while(true)
+	{
+		ColX=ColX/2;
+
+		int pos=0;
+		int CoefUnific=1;
+		for(int k=0; k<ColY; k++)
+		{
+			for(int i=0; i<ColX; i++)
+			{
+				if(i==ColX-1 && flagX)
+					CoefUnific=2;
+				MBR* MbrLeft=ArrOfLeafs[pos]->GetMBR();
+				MBR* MbrRight=ArrOfLeafs[pos+CoefUnific]->GetMBR();
+				int Top,Bottom,Left,Right=0;
+				if(flagY)//собираем по у
+				{
+					Top=MbrRight->Top;
+					Left=MbrRight->Left;
+					Bottom=MbrLeft->Bottom;
+					Right=MbrLeft->Right;
+				}
+				else//собираем по х
+				{
+					Top=MbrLeft->Top;
+					Left=MbrLeft->Left;
+					Bottom=MbrRight->Bottom;
+					Right=MbrRight->Right;
+				}
+				MBR *NewMBR=new MBR(Top,Bottom,Left,Right,-1,-1);
+				Node *NewNode=new Node(BranchingFactor,*NewMBR,CoefExp);
+				//printf("%d,%d %d,%d: %d\n",Left,Top,Right,Bottom,k*ColX+i);
+				for(int z=0; z<CoefUnific+1; z++, pos++)
+					NewNode->InsertNode(ArrOfLeafs[pos]);
+				ArrOfLeafs[k*ColX+i]=NewNode;
+			}
+			CoefUnific=1;
+		}
+		if(ColX==1 && !flagY)//если закончили собирать по х, то собираем по у
+		{
+			ColX=ColY;
+			flagY=true;
+		}
+		if(flagY && ColX==1)//закончили собирать по у - выходим
+			break;
+		if(ColX%2!=0)//выясняем как делить область
+			flagX = true;
+		else
+			flagX = false;
+		CoefUnific=1;
+		pos=0;
+	}
+	this->Root=ArrOfLeafs[0];
+	this->CoefExp=CoefExp;
+
+
+
+
+
+
+//абракадабра из поиска
+	//FirstNode=this->FindNodeForSearch(this->Root,Mbr,Number);
+	//if(FirstNode)
+	//	return NULL;
+	//while(true)
+	//{
+	//	while(true)
+	//	{
+	//		Traject *Tj=FirstNode->FindTraject(Number,Mbr->T0,Mbr->T1);
+	//		if(Tj)
+	//		{
+	//			TrajectList *NewElem=new TrajectList;
+	//			NewElem->Trajetory=Tj;
+	//			NewElem->Next=List;
+	//			List=NewElem;
+	//			Col++;
+	//		}
+	//		else
+	//			break;
+	//	}
+
+		//отсортировать список или найти последний по времени элемент
+		//изменить мбр в зависимости от направления движения
+		//проверить на то что одно из измерений может стать равным нулю
+		//если нет
+		//продолжить поиск
+		//если да
+		//отсортировать список
+		//вытащить точки и сформировать массив
+		//вернуть массив
+
+		//ИДЕЯ! ПОИСК КАК ПРИ ПОИСКЕ ВЕРШИНЫ, ТУПО НА ПЕРЕСЕЧЕНИЕ И ВЫБОРКУ ПОДХОДЯЩИХ ТРАЕКТОРИЙ! БРРРРР
+		//РЕАЛИЗУЕМ!
+		//Traject* MaxTimeTraject=List->MaxTimeTraject();
+		//if(MaxTimeTraject->Direction==1)
+		//{
+			//Mbr->Bottom+=MaxTimeTraject->
+
+		//}
+		//FirstNode=this->FindNodeForSearch(this->Stack->Pop(),Mbr,Number);
+
+
+
+//	int X=NewElem->Trajetory->X1;
+	//	int Y=NewElem->Trajetory->Y1;
+	//	int T=NewElem->Trajetory->T1;
+	//	if( X>Mbr->Right || Y < Mbr->Bottom || Y > Mbr->Top || T > Mbr->T1)
+	//		break;
+	//	if( X >= FirstNode->GetMBR()->Left && X <= FirstNode->GetMBR()->Right && Y >= FirstNode->GetMBR()->Bottom && Y <= FirstNode->GetMBR()->Top )
+	//		Mbr->T0=NewElem->Trajetory->T1;
+	//	else
+	//	{
+	//		SearchMBR->Left=X;
+	//		SearchMBR->Top=Y;
+	//		SearchMBR->T0=T;
+	//		FirstNode=this->FindNodeForSearch(this->Root,SearchMBR,Number);
+	//	}
+	//}
+//	TrajectObj *Arr=new TrajectObj[Col+1];
+//	int i=Col;
+//	for(TrajectList *Tmp=List; Tmp; Tmp=Tmp->Next)
+//	{
+//		Arr[i].Number=Number;
+//		Arr[i].X=Tmp->Trajetory->X1;
+//		Arr[i].Y=Tmp->Trajetory->Y1;
+//		if(i==1)
+//		{
+//			i--;
+//			Arr[i].Number=Number;
+//			Arr[i].X=Tmp->Trajetory->X0;
+//			Arr[i].Y=Tmp->Trajetory->Y0;
+//		}
+//		i--;
+//	}
+//	Col++;
+//	return Arr;
+//}
+
+
