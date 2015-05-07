@@ -1,35 +1,18 @@
-﻿Сборка начата 05.05.2015 23:47:57.
-     1>Проект "C:\Users\lex\Dropbox\LibTrajectMovingObject2\LibTrajectMovingObject\LibTrajectMovingObject.vcxproj" в узле 2 (целевые объекты build).
+﻿Build started 06.05.2015 0:55:48.
+     1>Project "E:\Курсовой проект САОД 2015\LibTrajectMovingObject2\LibTrajectMovingObject\LibTrajectMovingObject.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
-         Создание "Release\LibTrajectMovingObject.unsuccessfulbuild", так как было задано "AlwaysCreate".
+         Creating "Release\LibTrajectMovingObject.unsuccessfulbuild" because "AlwaysCreate" was specified.
        ClCompile:
-         Для всех выходных данных обновления не требуется.
-         D:\vs\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Yu"StdAfx.h" /Fp"Release\LibTrajectMovingObject.pch" /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt LibTrajectMovingObject.cpp
-         LibTrajectMovingObject.cpp
-     1>c:\users\lex\dropbox\libtrajectmovingobject2\libtrajectmovingobject\Node.h(38): warning C4305: инициализация: усечение из "__int64" к "int"
-     1>c:\users\lex\dropbox\libtrajectmovingobject2\libtrajectmovingobject\Node.h(38): warning C4309: инициализация: усечение константного значения
-     1>c:\users\lex\dropbox\libtrajectmovingobject2\libtrajectmovingobject\Node.h(57): warning C4305: =: усечение из "__int64" к "int"
-     1>c:\users\lex\dropbox\libtrajectmovingobject2\libtrajectmovingobject\Node.h(57): warning C4309: =: усечение константного значения
-     1>c:\users\lex\dropbox\libtrajectmovingobject2\libtrajectmovingobject\STR-TREE.h(64): warning C4244: return: преобразование "double" в "int", возможна потеря данных
-     1>LibTrajectMovingObject.cpp(43): warning C4996: 'getch': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _getch. See online help for details.
-                 D:\vs\VC\include\conio.h(128): см. объявление "getch"
+         All outputs are up-to-date.
+         All outputs are up-to-date.
        Link:
-         D:\vs\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\lex\Dropbox\LibTrajectMovingObject2\Release\LibTrajectMovingObject.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Release\LibTrajectMovingObject.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\lex\Dropbox\LibTrajectMovingObject2\Release\LibTrajectMovingObject.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\lex\Dropbox\LibTrajectMovingObject2\Release\LibTrajectMovingObject.lib" /MACHINE:X86 Release\LibTrajectMovingObject.obj
-         Release\Node.obj
-         Release\Stack.obj
-         Release\stdafx.obj
-         "Release\STR-TREE.obj"
-         Release\Trajectory.obj
-         Создание кода
-         Создание кода завершено
-         LibTrajectMovingObject.vcxproj -> C:\Users\lex\Dropbox\LibTrajectMovingObject2\Release\LibTrajectMovingObject.exe
-       Manifest:
-         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"C:\Users\lex\Dropbox\LibTrajectMovingObject2\Release\LibTrajectMovingObject.exe;#1" /manifest Release\LibTrajectMovingObject.exe.intermediate.manifest
+         All outputs are up-to-date.
+         LibTrajectMovingObject.vcxproj -> E:\Курсовой проект САОД 2015\LibTrajectMovingObject2\Release\LibTrajectMovingObject.exe
        FinalizeBuildStatus:
-         Файл "Release\LibTrajectMovingObject.unsuccessfulbuild" удаляется.
-         Обращение к "Release\LibTrajectMovingObject.lastbuildstate".
-     1>Построение проекта "C:\Users\lex\Dropbox\LibTrajectMovingObject2\LibTrajectMovingObject\LibTrajectMovingObject.vcxproj" завершено (целевые объекты build).
+         Deleting file "Release\LibTrajectMovingObject.unsuccessfulbuild".
+         Touching "Release\LibTrajectMovingObject.lastbuildstate".
+     1>Done Building Project "E:\Курсовой проект САОД 2015\LibTrajectMovingObject2\LibTrajectMovingObject\LibTrajectMovingObject.vcxproj" (build target(s)).
 
-Построение успешно завершено.
+Build succeeded.
 
-Затраченное время: 00:00:01.68
+Time Elapsed 00:00:01.26
