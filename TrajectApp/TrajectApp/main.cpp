@@ -10,91 +10,6 @@
 #endif
 #endif
 #pragma comment(lib, "Shlwapi.lib")
-
-//МЭЙН ЛЁШИН
-/*
-#include "stdafx.h"
-#include "STR-TREE.h"
-#include <iostream>
-#include <time.h>
-#include<conio.h>
-
-
-using namespace std;
-
-int _tmain(int argc, _TCHAR* argv[])
-{
-	StrTree a(4,10);
-	clock_t t=clock();
-	int x1=1;
-	int x2=2;
-	int y1=1;
-	int y2=2;
-	int t1=1;
-	int t2=2;
-	for(int i=0; i<1000000; i++)
-	{
-		Traject *Tr1=new Traject(x1,y1,x2,y2,1,5,t1,t2);
-		x1=x2;
-		x2++;
-		y1=y2;
-		y2++;
-		t1=t2;
-		t2++;
-		a.InsertTrajectory(Tr1);
-		if(i%1000000==0)
-			cout<<i<<" ";
-	}
-	clock_t t3=clock();
-	cout<<"time index"<<t3-t;
-	int col=0;
-	clock_t t4=clock();
-	TrajectObj * Arr = a.FindTrajectory(&MBR(10000,1000,100,100000,100,100000),5,col);
-	clock_t t5=clock();
-	cout<<endl<<"time zapr"<<t5-t4<<endl<<endl<<endl;
-	for(int i=0; i<col; i++)
-		cout<<Arr[i].X<<" "<<Arr[i].Y<<endl;
-	getch();
-	return 0;
-}*/
-
-/*TBtree a(3,10);
-	int x1=1;
-	int x2=2;
-	int y1=1;
-	int y2=2;
-	int t1=1;
-	int t2=2;
-	clock_t t=clock();
-	for(int i=0; i<20; i++)
-	{
-		Traject *Tr1=new Traject(x1,y1,x2,y2,1,5,t1,t2);
-		x1=x2;
-		x2++;
-		y1=y2;
-		y2++;
-		t1=t2;
-		t2++;
-		a.InsertTrajectory(Tr1);
-		if(i==2)
-		{
-			Traject *Tr3=new Traject(10,10,11,11,1,9,1,3);
-			a.InsertTrajectory(Tr3);
-		}
-			//cout<<i<<" ";
-	}
-	clock_t t3=clock();
-	cout<<"time index"<<t3-t;
-	int col=0;
-	TrajectObj * Arr = a.FindTrajectory(&MBR(15,4,4,15,4,15),5,col);
-	for(int i=0; i<col; i++)
-	{
-		//if(i==3)
-
-		cout<<Arr[i].X<<" "<<Arr[i].Y<<endl;
-
-
-	}*/
 #include <windows.h>
 #include <windowsx.h>
 #include "resource.h"
@@ -113,6 +28,8 @@ HWND ProgressBar;
 HWND MainDlg;
 HWND ComboBox;
 HWND ButtonQuery;
+HWND ListBox;
+HDC MainDC;
 TmpIndexingData CurrentIndexingData;
 TmpQueryData CurrentQueryData;
 StrTree STR_tree(4, 10);
@@ -129,6 +46,7 @@ BOOL CALLBACK MainDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 BOOL CALLBACK IndexingDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 BOOL CALLBACK QueryDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 void PaintField(HWND hWnd, HDC hDC, int FieldSize);
+void PaintKoordLines(HWND hWnd, HDC hDC);
  
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
@@ -161,15 +79,46 @@ void PaintField(HWND hWnd, HDC hDC, int FieldSize)
 	}
 }
 
+void PaintKoordLines(HWND hWnd, HDC hDC)
+{
+	HPEN KoordLinePen = CreatePen(PS_SOLID, 3, RGB(0,0,0));
+	SelectPen(hDC, KoordLinePen);
+	MoveToEx(hDC, 11, 13, NULL);
+	LineTo(hDC, 11, 436);
+	LineTo(hDC, 430, 436);
+	LineTo(hDC, 420, 430);
+	MoveToEx(hDC, 430, 436, NULL);
+	LineTo(hDC, 420, 442);
+	MoveToEx(hDC, 11, 13, NULL);
+	LineTo(hDC, 5, 28);
+	MoveToEx(hDC, 11, 13, NULL);
+	LineTo(hDC, 17, 28);
+	//Y и X
+	MoveToEx(hDC, 37, 5, NULL);
+	LineTo(hDC, 25, 25);
+	MoveToEx(hDC, 31, 14, NULL);
+	LineTo(hDC, 25, 5);
+
+	MoveToEx(hDC, 400, 450, NULL);
+	LineTo(hDC, 412, 470);
+	MoveToEx(hDC, 400, 470, NULL);
+	LineTo(hDC, 412, 450);
+}
+
 BOOL CALLBACK MainDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch(msg)
 	{
 		case WM_INITDIALOG:
 		{
+			ListBox = GetDlgItem(hWnd, IDC_LIST1);
 			MainDlg = hWnd;
 			ButtonQuery = GetDlgItem(hWnd, IDC_BUTTON_QUERY);
 			EnableWindow(ButtonQuery, false);
+		}; break;
+		case WM_MEASUREITEM:
+		{
+			int p = 0;
 		}; break;
 		case WM_PAINT: 
 		{
@@ -179,6 +128,7 @@ BOOL CALLBACK MainDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			hDC = BeginPaint(hWnd, &ps);
 			//Отрисовка сетки
 			PaintField(hWnd, hDC, 20);
+			PaintKoordLines(hWnd, hDC);
 			EndPaint(hWnd, &ps);
 		}; break;
 		case WM_COMMAND:
@@ -193,6 +143,18 @@ BOOL CALLBACK MainDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 					{
 						DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG_QUERY), hWnd, QueryDlgProc);
 					}; break;
+				case IDC_LIST1:
+					{
+						if (HIWORD(wParam) == LBN_SELCHANGE)
+						{
+							int p = SendMessage(ListBox, LB_GETCURSEL, 0, 0);
+							HDC hDC = GetDC(hWnd);
+							HPEN hPen = CreatePen(PS_SOLID | PS_INSIDEFRAME, 30, CurrentQueryData.Colors[p]);
+							SelectPen(hDC, hPen);
+							Rectangle(hDC, 545, 32, 595, 82);
+							ReleaseDC(hWnd, hDC);
+						}
+					}; break;
 			}
 		}; break;
 	case WM_CLOSE:
@@ -203,7 +165,7 @@ BOOL CALLBACK MainDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		return FALSE;
 	}
 }
-int costyl = 0;
+
 BOOL CALLBACK IndexingDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch(msg)
@@ -232,15 +194,33 @@ BOOL CALLBACK IndexingDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			case IDOK:
 				{
 					srand(time(0));
-					CurrentIndexingData.IndexingInterval = GetDlgItemInt(hWnd, IDC_EDITTIME, false, false);
-					CurrentIndexingData.FieldSize = GetDlgItemInt(hWnd, IDC_COMBOFIELDSIZE, false, false);
 					CurrentIndexingData.NumOfObjects = GetDlgItemInt(hWnd, IDC_EDITNUMBER, false, false);
+					if (CurrentIndexingData.NumOfObjects == 0)
+					{
+						MessageBox(hWnd, L"Укажите количество объектов!", L"Ошибка",
+							MB_ICONINFORMATION);
+						break;
+					}
+					CurrentIndexingData.IndexingInterval = GetDlgItemInt(hWnd, IDC_EDITTIME, false, false);
+					if (CurrentIndexingData.IndexingInterval == 0)
+					{
+						MessageBox(hWnd, L"Укажите время индексирования!", L"Ошибка",
+							MB_ICONINFORMATION);
+						break;
+					}
+					CurrentIndexingData.FieldSize = GetDlgItemInt(hWnd, IDC_COMBOFIELDSIZE, false, false);
+					if (CurrentIndexingData.FieldSize == 0)
+					{
+						MessageBox(hWnd, L"Укажите размер поля!", L"Ошибка",
+							MB_ICONINFORMATION);
+						break;
+					}
 					CurrentIndexingData.pnts1 = new POINT[CurrentIndexingData.NumOfObjects];
 					CurrentIndexingData.pnts2 = new POINT[CurrentIndexingData.NumOfObjects];
 					for (int i = 0; i < CurrentIndexingData.NumOfObjects; i++)
 					{
-						CurrentIndexingData.pnts1[i].x = rand()%400;
-						CurrentIndexingData.pnts1[i].y = rand()%400;
+						CurrentIndexingData.pnts1[i].x = rand()%400+11;
+						CurrentIndexingData.pnts1[i].y = rand()%402+32;
 
 						//SETI.Insert(CurrentIndexingData.pnts1[i].x, CurrentIndexingData.pnts1[i].y);
 					}
@@ -274,20 +254,36 @@ BOOL CALLBACK IndexingDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 					if ((CurrentIndexingData.pnts1[i].x) % 2)
 					{
 						CurrentIndexingData.pnts2[i].x = CurrentIndexingData.pnts1[i].x + rand()%20;
-						if (CurrentIndexingData.pnts2[i].x > 400)
-							CurrentIndexingData.pnts2[i].x -= 5;
+						if (CurrentIndexingData.pnts2[i].x > 390)
+							CurrentIndexingData.pnts2[i].x -= 20;
+						if (CurrentIndexingData.pnts2[i].x < 12)
+							CurrentIndexingData.pnts2[i].x += 20;
 					}
 					else
+					{
 						CurrentIndexingData.pnts2[i].x = CurrentIndexingData.pnts1[i].x - rand()%20;
+						if (CurrentIndexingData.pnts2[i].x > 410)
+							CurrentIndexingData.pnts2[i].x -= 20;
+						if (CurrentIndexingData.pnts2[i].x < 12)
+							CurrentIndexingData.pnts2[i].x += 20;
+					}
 
 					if ((CurrentIndexingData.pnts1[i].y) % 2)
 					{
 						CurrentIndexingData.pnts2[i].y = CurrentIndexingData.pnts1[i].y - rand()%20;
-						if (CurrentIndexingData.pnts2[i].y > 400)
-							CurrentIndexingData.pnts2[i].y -= 5;
+						if (CurrentIndexingData.pnts2[i].y > 415)
+							CurrentIndexingData.pnts2[i].y -= 20;
+						if (CurrentIndexingData.pnts2[i].y < 33)
+							CurrentIndexingData.pnts2[i].y += 20;
 					}
 					else
+					{
 						CurrentIndexingData.pnts2[i].y = CurrentIndexingData.pnts1[i].y + rand()%20;
+						if (CurrentIndexingData.pnts2[i].y > 435)
+							CurrentIndexingData.pnts2[i].y -= 20;
+						if (CurrentIndexingData.pnts2[i].y < 33)
+							CurrentIndexingData.pnts2[i].y += 20;
+					}
 
 					HDC hDC = GetDC(MainDlg);
 					HPEN hPen = CreatePen(PS_SOLID, 1, RGB(255,0,0));
@@ -299,10 +295,7 @@ BOOL CALLBACK IndexingDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 					Traject *NewTraject = new Traject(CurrentIndexingData.pnts1[i].x, CurrentIndexingData.pnts1[i].y,
 					CurrentIndexingData.pnts2[i].x, CurrentIndexingData.pnts2[i].y, 1, i, TimerVal, TimerVal+1);
-					if (costyl == 1)
-						int a=3;
 					STR_tree.InsertTrajectory(NewTraject);
-					costyl++;
 					TB_tree.InsertTrajectory(NewTraject);
 					//SETI.Insert(CurrentIndexingData.pnts2[i].x, CurrentIndexingData.pnts2[i].y);
 					CurrentIndexingData.pnts1[i].x = CurrentIndexingData.pnts2[i].x;
@@ -318,6 +311,8 @@ BOOL CALLBACK IndexingDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		}; break;
 	case WM_CLOSE:
 		{
+			delete CurrentIndexingData.pnts1;
+			delete CurrentIndexingData.pnts2;
 			EndDialog(hWnd, NULL);
 		}; break;
 	default:
@@ -325,8 +320,7 @@ BOOL CALLBACK IndexingDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	}
 }
 
-
-
+int nItem = 0;
 BOOL CALLBACK QueryDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch(msg)
@@ -374,6 +368,8 @@ BOOL CALLBACK QueryDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 						CurrentQueryData.IDs = new int[CurrentQueryData.NumOfQueryObjects];
 						for (int i = 0; i < CurrentQueryData.NumOfQueryObjects; i++)
 							CurrentQueryData.IDs[i] = IDsint[i];
+
+						CurrentQueryData.Colors = new COLORREF[CurrentQueryData.NumOfQueryObjects];
 						
 						CurrentQueryData.TimeFrom = GetDlgItemInt(hWnd, IDC_EDIT2, false, false);
 						CurrentQueryData.TimeTo = GetDlgItemInt(hWnd, IDC_EDIT3, false, false);
@@ -382,32 +378,68 @@ BOOL CALLBACK QueryDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 						CurrentQueryData.MBRx1 = GetDlgItemInt(hWnd, IDC_EDIT6, false, false);
 						CurrentQueryData.MBRy1 = GetDlgItemInt(hWnd, IDC_EDIT8, false, false);
 
+						WCHAR tmpID[5];
+
 						int col = 0;
-						/*TrajectObj * Arr = STR_tree.FindTrajectory(&MBR(CurrentQueryData.MBRx0, CurrentQueryData.MBRy0,
-							CurrentQueryData.MBRx1, CurrentQueryData.MBRy1, CurrentQueryData.TimeFrom, CurrentQueryData.TimeTo),
-							5, col);*/
 						//читай сигнатуры методов, кривая последовательность параметров при передаче в конструктор MBR
-						for (int i = 0; i < CurrentQueryData.NumOfQueryObjects; i++)
+						if (IsDlgButtonChecked(hWnd, IDC_RADIOSTR) == BST_CHECKED)
 						{
-							TrajectObj * ArrSTR = STR_tree.FindTrajectory(&MBR(CurrentQueryData.MBRy1, CurrentQueryData.MBRy0,
-								CurrentQueryData.MBRx0, CurrentQueryData.MBRx1, CurrentQueryData.TimeFrom, CurrentQueryData.TimeTo),
-								CurrentQueryData.IDs[i], col);
-							TrajectObj * ArrTB = TB_tree.FindTrajectory(&MBR(CurrentQueryData.MBRy1, CurrentQueryData.MBRy0,
-								CurrentQueryData.MBRx0, CurrentQueryData.MBRx1, CurrentQueryData.TimeFrom, CurrentQueryData.TimeTo),
-								CurrentQueryData.IDs[i], col);
-							HDC hDC = GetDC(MainDlg);
-							MoveToEx(hDC, ArrSTR[0].X, ArrSTR[0].Y, NULL);
-							MoveToEx(hDC, ArrTB[0].X, ArrTB[0].Y, NULL);
-							HPEN hPen = CreatePen(PS_SOLID, 3, RGB(0,255,0));
-							SelectPen(hDC, hPen);
-							for (int i = 1; i < col; i++)
+							for (int i = 0; i < CurrentQueryData.NumOfQueryObjects; i++)
 							{
-								LineTo(hDC, ArrSTR[i].X, ArrSTR[i].Y);
-								LineTo(hDC, ArrTB[i].X, ArrTB[i].Y);
-								//MoveToEx(hDC, Arr[i].X, Arr[i].Y, NULL);
+								TrajectObj * ArrSTR = STR_tree.FindTrajectory(&MBR(CurrentQueryData.MBRy1, CurrentQueryData.MBRy0,
+									CurrentQueryData.MBRx0, CurrentQueryData.MBRx1, CurrentQueryData.TimeFrom, CurrentQueryData.TimeTo),
+									CurrentQueryData.IDs[i], col);
+								HDC hDC = GetDC(MainDlg);
+								MoveToEx(hDC, ArrSTR[0].X, ArrSTR[0].Y, NULL);
+								int red = CurrentQueryData.currRed = rand()%210+30;
+								int green = CurrentQueryData.currGreen = rand()%210+30;
+								int blue = CurrentQueryData.currBlue = rand()%210+30;
+								HPEN hPen = CreatePen(PS_SOLID, 3, RGB(red,green,blue));
+								SelectPen(hDC, hPen);
+								for (int j = 1; j < col; j++)
+									LineTo(hDC, ArrSTR[j].X, ArrSTR[j].Y);
 								
+								CurrentQueryData.currTextColor = RGB(red, green, blue);
+								CurrentQueryData.Colors[i] = CurrentQueryData.currTextColor;
+								wsprintf(tmpID, L"%d", CurrentQueryData.IDs[i]);
+								nItem = SendMessage(ListBox, LB_ADDSTRING, 0, (LPARAM)tmpID);
+								SendMessage(ListBox, LB_SETITEMDATA, nItem, (LPARAM)CurrentQueryData.currTextColor);
+								ReleaseDC(MainDlg, hDC);
 							}
-							ReleaseDC(MainDlg, hDC);
+						}
+						else if (IsDlgButtonChecked(hWnd, IDC_RADIOTB) == BST_CHECKED)
+						{
+							for (int i = 0; i < CurrentQueryData.NumOfQueryObjects; i++)
+							{
+								TrajectObj * ArrTB = TB_tree.FindTrajectory(&MBR(CurrentQueryData.MBRy1, CurrentQueryData.MBRy0,
+									CurrentQueryData.MBRx0, CurrentQueryData.MBRx1, CurrentQueryData.TimeFrom, CurrentQueryData.TimeTo),
+									CurrentQueryData.IDs[i], col);
+								HDC hDC = GetDC(MainDlg);
+								MoveToEx(hDC, ArrTB[0].X, ArrTB[0].Y, NULL);
+								int red = CurrentQueryData.currRed = rand()%210+30;
+								int green = CurrentQueryData.currGreen = rand()%210+30;
+								int blue = CurrentQueryData.currBlue = rand()%210+30;
+								HPEN hPen = CreatePen(PS_SOLID, 3, RGB(red,green,blue));
+								SelectPen(hDC, hPen);
+								for (int j = 1; j < col; j++)
+									LineTo(hDC, ArrTB[j].X, ArrTB[j].Y);
+								
+								CurrentQueryData.currTextColor = RGB(red, green, blue);
+								CurrentQueryData.Colors[i] = CurrentQueryData.currTextColor;
+								wsprintf(tmpID, L"%d", CurrentQueryData.IDs[i]);
+								nItem = SendMessage(ListBox, LB_ADDSTRING, 0, (LPARAM)tmpID);
+								SendMessage(ListBox, LB_SETITEMDATA, nItem, (LPARAM)CurrentQueryData.currTextColor);
+								ReleaseDC(MainDlg, hDC);
+							}
+						}
+						else if (IsDlgButtonChecked(hWnd, IDC_RADIOSETI) == BST_CHECKED)
+						{
+							//то же самое для SETI.
+						}
+						else //ничего не выбрано
+						{
+							MessageBox(hWnd, L"Выберите индесную структуру", L"Ошибка",
+								MB_ICONINFORMATION);
 						}
 					}; break;
 			}

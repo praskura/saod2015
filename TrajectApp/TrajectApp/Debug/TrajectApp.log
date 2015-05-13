@@ -1,14 +1,20 @@
-﻿Build started 13.05.2015 11:57:00.
+﻿Build started 14.05.2015 2:05:55.
      1>Project "C:\Users\Григорий\documents\visual studio 2010\Projects\TrajectApp\TrajectApp\TrajectApp.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
-         Creating "Debug\TrajectApp.unsuccessfulbuild" because "AlwaysCreate" was specified.
+         Touching "Debug\TrajectApp.unsuccessfulbuild".
        ClCompile:
-         c:\Program Files\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt "TB-tree.cpp"
-         TB-tree.cpp
+         c:\Program Files\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt main.cpp
+         main.cpp
      1>c:\users\григорий\documents\visual studio 2010\projects\trajectapp\trajectapp\node.h(45): warning C4305: 'initializing' : truncation from '__int64' to 'int'
      1>c:\users\григорий\documents\visual studio 2010\projects\trajectapp\trajectapp\node.h(45): warning C4309: 'initializing' : truncation of constant value
      1>c:\users\григорий\documents\visual studio 2010\projects\trajectapp\trajectapp\node.h(64): warning C4305: '=' : truncation from '__int64' to 'int'
      1>c:\users\григорий\documents\visual studio 2010\projects\trajectapp\trajectapp\node.h(64): warning C4309: '=' : truncation of constant value
+     1>c:\users\григорий\documents\visual studio 2010\projects\trajectapp\trajectapp\str-tree.h(55): warning C4244: 'return' : conversion from 'double' to 'int', possible loss of data
+     1>c:\users\григорий\documents\visual studio 2010\projects\trajectapp\trajectapp\main.cpp(196): warning C4244: 'argument' : conversion from 'time_t' to 'unsigned int', possible loss of data
+     1>c:\users\григорий\documents\visual studio 2010\projects\trajectapp\trajectapp\main.cpp(253): warning C4244: 'argument' : conversion from 'time_t' to 'unsigned int', possible loss of data
+     1>c:\users\григорий\documents\visual studio 2010\projects\trajectapp\trajectapp\main.cpp(167): warning C4715: 'MainDlgProc' : not all control paths return a value
+     1>c:\users\григорий\documents\visual studio 2010\projects\trajectapp\trajectapp\main.cpp(321): warning C4715: 'IndexingDlgProc' : not all control paths return a value
+     1>c:\users\григорий\documents\visual studio 2010\projects\trajectapp\trajectapp\main.cpp(454): warning C4715: 'QueryDlgProc' : not all control paths return a value
        ResourceCompile:
          All outputs are up-to-date.
        ManifestResourceCompile:
@@ -35,4 +41,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:01.70
+Time Elapsed 00:00:02.79
