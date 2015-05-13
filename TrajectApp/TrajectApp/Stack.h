@@ -1,5 +1,4 @@
 #pragma once
-//#include "stdafx.h"
 
 #ifndef NODE
 #include "Node.h"
@@ -22,4 +21,23 @@ public:
 	void Delete();
 	Node* Look();
 	~NodeStack();
+};
+
+struct TBStackElem
+{
+	TBNode *Elem;
+	TBStackElem *Next;
+};
+
+class TBNodeStack
+{
+private:
+	TBStackElem *Head;
+public:
+	TBNodeStack();
+	void Push(TBNode *Tmp);
+	TBNode* Pop();
+	void Delete();
+	TBNode* Look();
+	~TBNodeStack();
 };

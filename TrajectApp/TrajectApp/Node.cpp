@@ -1,6 +1,5 @@
-//#include "stdafx.h"
 #include "Node.h"
-
+#define NULL 0
 void Node::ExpMBRNode()
 {
 	MBR *CurrentMBR=this->GetMBR();
@@ -21,7 +20,6 @@ Node::Node()
 	this->Col=0;
 	this->Mbr=NULL;
 	this->Trajectories=NULL;
-	this->ColTraject=0;
 }
 
 Node::Node(int BranchingFactor, MBR &Mbr, Traject* Trajectory, int DecExtend)
@@ -178,8 +176,6 @@ Node *Node::NodePartitionTraject(Traject *Trajectory)
 
 Node* Node::NodePartitionNode(Node *InsertNode)
 {
-	//разбивает криво, не знаю что делать, что по уыеличению площади,что по увеличению расстояния, получается одно и тоже
-	//мб так и надо...
 	NodeListElem *Elem=new NodeListElem();
 	Elem->Elem=InsertNode;
 	Elem->Next=this->Childs;
@@ -219,46 +215,21 @@ Node* Node::NodePartitionNode(Node *InsertNode)
 		delete FirstMBR;
 		delete TmpMBR;
 		this->Col=0;
-		/*NodeListElem *Elem=new NodeListElem;
-		Elem->Elem=InsertNode;
-		Elem->Next=this->Childs;
-		this->Childs=Elem;*/
 		NodeListElem *Childs=this->Childs;
-		//NodeListElem *Pre=this->Childs;
 		this->Childs=NULL;
 		for(NodeListElem *Tmp = /*this->*/Childs; Tmp; Tmp=Tmp->Next)
 		{
 			double DistanseFromMbrToFirstCenter=FirstCenter->Distanse(Tmp->Elem->GetMBR());
 			double DistanseFromMbrToSecondCenter=SecondCenter->Distanse(Tmp->Elem->GetMBR());
 			if(DistanseFromMbrToFirstCenter < DistanseFromMbrToSecondCenter)
-			//double ExpMbrFromMbrToFirstCenter=FirstCenter->ExpSOfMBR(Tmp->Elem->GetMBR());
-			//double ExpMbrFromMbrToSecondCenter=SecondCenter->ExpSOfMBR(Tmp->Elem->GetMBR());
-			//if(ExpMbrFromMbrToFirstCenter < ExpMbrFromMbrToSecondCenter)
 			{
 				NewNode->InsertNode(Tmp->Elem);
 				NewNode->ExpMBRNode();
-				//FirstCenter->SetMbr(NewNode->GetMBR());
-				//if(Tmp==this->Childs)
-				//{
-					//this->Childs=this->Childs->Next;
-					//delete Pre;
-					//Pre=this->Childs;
-				//}
-				//else
-				//{
-					//Pre->Next=Pre->Next->Next;
-					//delete Tmp;
-					//Tmp=Pre->Next;
-				//}
 			}
 			else
 			{
-				//this->Col++;
-				//Pre=Tmp;
-				//Tmp=Tmp->Next;
 				this->InsertNode(Tmp->Elem);
 				this->ExpMBRNode();
-				//SecondCenter->SetMbr(this->GetMBR());
 			}
 		}
 	}
@@ -269,3 +240,95 @@ Node* Node::NodePartitionNode(Node *InsertNode)
 	return NewNode;
 }
 
+
+TBNode::TBNode(int BranchingFactor, MBR &Mbr, int DecExtend):Node(BranchingFactor,Mbr,DecExtend)
+{
+	this->NextNodeWithTraject=NULL;
+	this->Childs=NULL;
+	this->PreNodeWithTraject=NULL;
+}
+
+TBNode* TBNode::NodePartitionTraject(Traject *Trajectory)
+{
+	TBNode *NewNode=new TBNode(this->GetFactor(),*new MBR(-1,-1,-1,-1,-1,-1),this->GetDec());
+	NewNode->InsertTraject(Trajectory);
+	NewNode->ExpMBRTraject();
+	return NewNode;
+}
+
+TBNode* TBNode::NodePartitionNode(TBNode *NewNode)
+{
+	TBNode *NewTBNode=new TBNode(this->GetFactor(),*new MBR(-1,-1,-1,-1,-1,-1),this->GetDec());
+	NewTBNode->InsertNode(NewNode);
+	NewTBNode->ExpMBRNode();
+	return NewTBNode;
+}
+
+void TBNode::InsertTraject(Traject *Trajectory)
+{
+	TrajectList* Elem=new TrajectList;
+	if(this->Trajectories==NULL)
+	{
+		Elem->Trajetory=Trajectory;
+		Elem->Next=this->Trajectories;
+		this->Trajectories=Elem;
+		this->IncColTraject();
+		this->ExpMBRTraject();
+		return;
+	}
+	for(TrajectList *Tmp = this->Trajectories; Tmp; Tmp=Tmp->Next)
+	{
+		if(Tmp->Next==NULL)
+		{
+			Elem->Trajetory=Trajectory;
+			Elem->Next=Tmp->Next;
+			Tmp->Next=Elem;
+			this->IncColTraject();
+			this->ExpMBRTraject();
+			return;
+		}
+	}
+	
+}
+	
+bool TBNode::InsertNode(TBNode*Tmp)
+{
+	if(!this->Full())
+	{
+		TBNodeListElem* Elem=new TBNodeListElem;
+		if(this->Childs==NULL)
+		{
+			Elem->Elem=Tmp;
+			Elem->Next=this->Childs;
+			this->Childs=Elem;
+			this->IncCol();
+			return true;
+		}
+		for(TBNodeListElem *Temp=this->Childs; Temp; Temp=Temp->Next)
+		{
+			if(Temp->Next==NULL)
+			{
+				Elem->Elem=Tmp;
+				Elem->Next=Temp->Next;
+				Temp->Next=Elem;
+				this->IncCol();
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+void TBNode::ExpMBRNode()
+{
+	MBR *CurrentMBR=this->GetMBR();
+	CurrentMBR->SetMbr(&MBR(-1,-1,-1,-1,-1,-1));
+	if(!this->Leaf())
+	{
+		for(TBNodeListElem *Tmp = this->Childs; Tmp; Tmp=Tmp->Next)
+			CurrentMBR->ExpMbr(Tmp->Elem->GetMBR());
+	}
+	else
+		this->ExpMBRTraject();
+}

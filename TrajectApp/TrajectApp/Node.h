@@ -1,12 +1,19 @@
 #pragma once
-//#include "stdafx.h"
 #include "math.h"
 #include"MBR.h"
-
 #define NULL 0
+
 #ifndef TRAJECT
 #include "Trajectory.h"
 #endif
+
+
+struct TrajectObj
+{
+	int Number;
+	int X;
+	int Y;
+};
 
 struct NodeListElem;
 
@@ -131,7 +138,10 @@ public:
 			this->Mbr->T1=Mbr->T1;
 	}
 	void ExpColTraject() {this->ColTraject++;}
-	
+	void IncCol(){this->Col++;}
+	void ZeroCol(){this->Col=0;}
+	void IncColTraject(){this->ColTraject++;}
+	void ZeroColTraject(){this->ColTraject=0;}
 	Traject* FindTraject(int Number, int T0, int T1)
 	{
 		for(TrajectList *Tmp=this->Trajectories; Tmp; Tmp=Tmp->Next)
@@ -161,4 +171,49 @@ struct NodeListElem
 {
 	Node *Elem;
 	NodeListElem *Next;
+};
+
+struct TBNodeListElem;
+
+class TBNode:public Node
+{
+private:
+	TBNode* NextNodeWithTraject;
+	TBNode* PreNodeWithTraject;
+public:
+	TBNodeListElem* Childs;
+	TBNode(int BranchingFactor, MBR &Mbr, int DecExtend);
+	virtual TBNode* NodePartitionTraject(Traject *Trajectory);
+	virtual TBNode* NodePartitionNode(TBNode *NewNode);
+	virtual void InsertTraject(Traject *Trajectory);
+	virtual bool InsertNode(TBNode*Tmp);
+	void ExpMBRNode();
+	bool Leaf()
+	{
+		if(this->Childs!=NULL)
+			return false;
+		return true;
+	}
+	void SetPreNode(TBNode *Node)
+	{
+		this->PreNodeWithTraject=Node;
+	}
+	void SetNextNode(TBNode *Node)
+	{
+		this->NextNodeWithTraject=Node;
+	}
+	TBNode* GetPreNode()
+	{
+		return this->PreNodeWithTraject;
+	}
+	TBNode* GetNextNode()
+	{
+		return this->NextNodeWithTraject;
+	}
+};
+
+struct TBNodeListElem
+{
+	TBNode *Elem;
+	TBNodeListElem *Next;
 };

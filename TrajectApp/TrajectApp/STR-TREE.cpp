@@ -1,9 +1,8 @@
-//#include "stdafx.h"
 #include "Node.h"
 #include "STR-TREE.h"
 #include <math.h>
-//#include <iostream>
-//using namespace std;
+#include <iostream>
+using namespace std;
 
 StrTree::StrTree(int BranchingFactor,int CoefExp)
 {
@@ -27,7 +26,6 @@ void StrTree::InsertTrajectory(Traject* NewTraject)
 		}
 		else
 		{
-
 			Node *NewNode=PlaceInsert->NodePartitionTraject(NewTraject);
 			this->InsertNode(NewNode);
 		}

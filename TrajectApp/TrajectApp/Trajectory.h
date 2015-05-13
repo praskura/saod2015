@@ -1,5 +1,4 @@
 #pragma once
-//#include "stdafx.h"
 //#include "Node.h"
 
 //struct MBR;
@@ -58,6 +57,18 @@ struct Traject
 		return false;
 	}
 
+	bool NotIncludedRight(int X0, int X1, int Y0, int Y1, int T0, int T1)
+	{
+		if(this->X0 >= X1 || this->X1 > X1 ||  this->Y0 >= Y1 || this->Y1 > Y1 || this->T0 >=T1 || this->T1 > T1)
+			return true;
+		return false;
+	}
 
+	bool NotIncludedLeft(int X0, int X1, int Y0, int Y1, int T0, int T1)
+	{
+		if(this->X0 < X0 || this->X1 <= X0 ||  this->Y0 < Y0 || this->Y1 <= Y0 || this->T0 < T0 || this->T1 <= T0)
+			return true;
+		return false;
+	}
 
 };

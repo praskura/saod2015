@@ -1,20 +1,14 @@
-﻿Build started 07.05.2015 14:07:01.
+﻿Build started 13.05.2015 11:57:00.
      1>Project "C:\Users\Григорий\documents\visual studio 2010\Projects\TrajectApp\TrajectApp\TrajectApp.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "Debug\TrajectApp.unsuccessfulbuild" because "AlwaysCreate" was specified.
        ClCompile:
-         c:\Program Files\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt main.cpp
-         main.cpp
-     1>c:\users\григорий\documents\visual studio 2010\projects\trajectapp\trajectapp\node.h(38): warning C4305: 'initializing' : truncation from '__int64' to 'int'
-     1>c:\users\григорий\documents\visual studio 2010\projects\trajectapp\trajectapp\node.h(38): warning C4309: 'initializing' : truncation of constant value
-     1>c:\users\григорий\documents\visual studio 2010\projects\trajectapp\trajectapp\node.h(57): warning C4305: '=' : truncation from '__int64' to 'int'
-     1>c:\users\григорий\documents\visual studio 2010\projects\trajectapp\trajectapp\node.h(57): warning C4309: '=' : truncation of constant value
-     1>c:\users\григорий\documents\visual studio 2010\projects\trajectapp\trajectapp\str-tree.h(65): warning C4244: 'return' : conversion from 'double' to 'int', possible loss of data
-     1>c:\users\григорий\documents\visual studio 2010\projects\trajectapp\trajectapp\main.cpp(194): warning C4244: 'argument' : conversion from 'time_t' to 'unsigned int', possible loss of data
-     1>c:\users\григорий\documents\visual studio 2010\projects\trajectapp\trajectapp\main.cpp(233): warning C4244: 'argument' : conversion from 'time_t' to 'unsigned int', possible loss of data
-     1>c:\users\григорий\documents\visual studio 2010\projects\trajectapp\trajectapp\main.cpp(165): warning C4715: 'MainDlgProc' : not all control paths return a value
-     1>c:\users\григорий\documents\visual studio 2010\projects\trajectapp\trajectapp\main.cpp(286): warning C4715: 'IndexingDlgProc' : not all control paths return a value
-     1>c:\users\григорий\documents\visual studio 2010\projects\trajectapp\trajectapp\main.cpp(376): warning C4715: 'QueryDlgProc' : not all control paths return a value
+         c:\Program Files\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt "TB-tree.cpp"
+         TB-tree.cpp
+     1>c:\users\григорий\documents\visual studio 2010\projects\trajectapp\trajectapp\node.h(45): warning C4305: 'initializing' : truncation from '__int64' to 'int'
+     1>c:\users\григорий\documents\visual studio 2010\projects\trajectapp\trajectapp\node.h(45): warning C4309: 'initializing' : truncation of constant value
+     1>c:\users\григорий\documents\visual studio 2010\projects\trajectapp\trajectapp\node.h(64): warning C4305: '=' : truncation from '__int64' to 'int'
+     1>c:\users\григорий\documents\visual studio 2010\projects\trajectapp\trajectapp\node.h(64): warning C4309: '=' : truncation of constant value
        ResourceCompile:
          All outputs are up-to-date.
        ManifestResourceCompile:
@@ -26,6 +20,7 @@
          Debug\Node.obj
          Debug\Stack.obj
          "Debug\STR-TREE.obj"
+         "Debug\TB-tree.obj"
          Debug\Trajectory.obj
        Manifest:
          c:\Program Files\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /out:"Debug\TrajectApp.exe.embed.manifest" /manifest Debug\TrajectApp.exe.intermediate.manifest
@@ -40,4 +35,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:02.23
+Time Elapsed 00:00:01.70

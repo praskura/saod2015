@@ -57,6 +57,44 @@ int _tmain(int argc, _TCHAR* argv[])
 	getch();
 	return 0;
 }*/
+
+/*TBtree a(3,10);
+	int x1=1;
+	int x2=2;
+	int y1=1;
+	int y2=2;
+	int t1=1;
+	int t2=2;
+	clock_t t=clock();
+	for(int i=0; i<20; i++)
+	{
+		Traject *Tr1=new Traject(x1,y1,x2,y2,1,5,t1,t2);
+		x1=x2;
+		x2++;
+		y1=y2;
+		y2++;
+		t1=t2;
+		t2++;
+		a.InsertTrajectory(Tr1);
+		if(i==2)
+		{
+			Traject *Tr3=new Traject(10,10,11,11,1,9,1,3);
+			a.InsertTrajectory(Tr3);
+		}
+			//cout<<i<<" ";
+	}
+	clock_t t3=clock();
+	cout<<"time index"<<t3-t;
+	int col=0;
+	TrajectObj * Arr = a.FindTrajectory(&MBR(15,4,4,15,4,15),5,col);
+	for(int i=0; i<col; i++)
+	{
+		//if(i==3)
+
+		cout<<Arr[i].X<<" "<<Arr[i].Y<<endl;
+
+
+	}*/
 #include <windows.h>
 #include <windowsx.h>
 #include "resource.h"
@@ -65,6 +103,7 @@ int _tmain(int argc, _TCHAR* argv[])
 #include <Shlwapi.h>
 #include <time.h>
 #include "STR-TREE.h"
+#include "TB-tree.h"
 
 HINSTANCE hInst;
 static int dTimerCommon, nTimerCommon, dTimerSec, nTimerSec, TimerVal;
@@ -77,6 +116,7 @@ HWND ButtonQuery;
 TmpIndexingData CurrentIndexingData;
 TmpQueryData CurrentQueryData;
 StrTree STR_tree(4, 10);
+TBtree TB_tree(3, 10);
 int x1;
 int x2;
 int y;
@@ -263,8 +303,8 @@ BOOL CALLBACK IndexingDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 						int a=3;
 					STR_tree.InsertTrajectory(NewTraject);
 					costyl++;
-					/*TB_tree.InsertTrajectory(Traject* NewTraject);
-					SETI.Insert(CurrentIndexingData.pnts2[i].x, CurrentIndexingData.pnts2[i].y);*/
+					TB_tree.InsertTrajectory(NewTraject);
+					//SETI.Insert(CurrentIndexingData.pnts2[i].x, CurrentIndexingData.pnts2[i].y);
 					CurrentIndexingData.pnts1[i].x = CurrentIndexingData.pnts2[i].x;
 					CurrentIndexingData.pnts1[i].y = CurrentIndexingData.pnts2[i].y;
 
@@ -349,17 +389,23 @@ BOOL CALLBACK QueryDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 						//читай сигнатуры методов, кривая последовательность параметров при передаче в конструктор MBR
 						for (int i = 0; i < CurrentQueryData.NumOfQueryObjects; i++)
 						{
-							TrajectObj * Arr = STR_tree.FindTrajectory(&MBR(CurrentQueryData.MBRy1, CurrentQueryData.MBRy0,
+							TrajectObj * ArrSTR = STR_tree.FindTrajectory(&MBR(CurrentQueryData.MBRy1, CurrentQueryData.MBRy0,
+								CurrentQueryData.MBRx0, CurrentQueryData.MBRx1, CurrentQueryData.TimeFrom, CurrentQueryData.TimeTo),
+								CurrentQueryData.IDs[i], col);
+							TrajectObj * ArrTB = TB_tree.FindTrajectory(&MBR(CurrentQueryData.MBRy1, CurrentQueryData.MBRy0,
 								CurrentQueryData.MBRx0, CurrentQueryData.MBRx1, CurrentQueryData.TimeFrom, CurrentQueryData.TimeTo),
 								CurrentQueryData.IDs[i], col);
 							HDC hDC = GetDC(MainDlg);
-							MoveToEx(hDC, Arr[0].X, Arr[0].Y, NULL);
+							MoveToEx(hDC, ArrSTR[0].X, ArrSTR[0].Y, NULL);
+							MoveToEx(hDC, ArrTB[0].X, ArrTB[0].Y, NULL);
 							HPEN hPen = CreatePen(PS_SOLID, 3, RGB(0,255,0));
 							SelectPen(hDC, hPen);
 							for (int i = 1; i < col; i++)
 							{
-								LineTo(hDC, Arr[i].X, Arr[i].Y);
-								MoveToEx(hDC, Arr[i].X, Arr[i].Y, NULL);
+								LineTo(hDC, ArrSTR[i].X, ArrSTR[i].Y);
+								LineTo(hDC, ArrTB[i].X, ArrTB[i].Y);
+								//MoveToEx(hDC, Arr[i].X, Arr[i].Y, NULL);
+								
 							}
 							ReleaseDC(MainDlg, hDC);
 						}

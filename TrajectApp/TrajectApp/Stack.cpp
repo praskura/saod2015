@@ -1,4 +1,3 @@
-//#include "stdafx.h"
 #include "Stack.h"
 
 NodeStack::NodeStack()
@@ -36,6 +35,45 @@ Node* NodeStack::Look()
 }
 
 NodeStack:: ~NodeStack()
+{
+	this->Delete();
+}
+
+TBNodeStack::TBNodeStack()
+{
+	this->Head=NULL;
+}
+
+void TBNodeStack::Push(TBNode *Inserted)
+{
+	TBStackElem *Tmp=new TBStackElem;
+	Tmp->Elem=Inserted;
+	Tmp->Next=this->Head;
+	this->Head=Tmp;
+}
+
+TBNode* TBNodeStack::Pop()
+{
+	if(this->Head==NULL)
+		return NULL;
+	TBStackElem* Elem=this->Head;
+	this->Head=this->Head->Next;
+	TBNode *TmpElem=Elem->Elem;
+	delete Elem;
+	return TmpElem;
+}
+
+void TBNodeStack::Delete()
+{
+	while(this->Pop());
+}
+
+TBNode* TBNodeStack::Look()
+{
+	return this->Head->Elem;
+}
+
+TBNodeStack:: ~TBNodeStack()
 {
 	this->Delete();
 }

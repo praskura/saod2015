@@ -1,5 +1,4 @@
 #pragma once
-//#include "stdafx.h"
 #include "Trajectory.h"
 
 struct MBR
@@ -16,12 +15,6 @@ public:
 	MBR(){ this->Bottom=this->Left=this->Right=this->T0=this->T1=this->Top=0; }
 	MBR(Traject *Trajectory)
 	{
-		/*this->Left=Trajectory->X0; 
-		this->Right=Trajectory->X1; 
-		this->Top=Trajectory->Y0; 
-		this->Bottom=Trajectory->Y1; 
-		this->T0=Trajectory->T0; 
-		this->T1=Trajectory->T1;*/ 
 		if(Trajectory->X0>Trajectory->X1)
 		{
 			this->Right=Trajectory->X0;

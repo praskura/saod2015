@@ -1,5 +1,4 @@
 #pragma once
-//#include "stdafx.h"
 #include <math.h>
 #ifndef STACK
 #include "Stack.h"
@@ -7,7 +6,6 @@
 #ifndef NODE
 #include "Node.h"
 #endif
-
 
 class Object
 {
@@ -21,14 +19,6 @@ public:
 	Object(int X, int Y, MBR &Mbr,int Number);
 	~Object();
 };
-
-struct TrajectObj
-{
-	int Number;
-	int X;
-	int Y;
-};
-
 
 class StrTree
 {

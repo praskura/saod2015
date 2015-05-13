@@ -81,6 +81,7 @@
     <ClCompile Include="Node.cpp" />
     <ClCompile Include="Stack.cpp" />
     <ClCompile Include="STR-TREE.cpp" />
+    <ClCompile Include="TB-tree.cpp" />
     <ClCompile Include="Trajectory.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -89,6 +90,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="Stack.h" />
     <ClInclude Include="STR-TREE.h" />
+    <ClInclude Include="TB-tree.h" />
     <ClInclude Include="TempIndexingStructure.h" />
     <ClInclude Include="Trajectory.h" />
   </ItemGroup>

@@ -3,6 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TrajectApp", "TrajectApp\TrajectApp.vcxproj", "{EA4CEF20-F005-4D63-BFED-6C3C632184B6}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AB799E0C-5893-43A0-8560-C44D09BE784C}"
+	ProjectSection(SolutionItems) = preProject
+		TrajectApp\TB-tree.cpp = TrajectApp\TB-tree.cpp
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
