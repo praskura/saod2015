@@ -1,21 +1,12 @@
 #pragma once
+//#include "stdafx.h"
 #include "math.h"
 #include"MBR.h"
-#define NULL 0
+#include"IDRange.h"
 
 #ifndef TRAJECT
 #include "Trajectory.h"
 #endif
-
-
-struct TrajectObj
-{
-	int Number;
-	int X;
-	int Y;
-};
-
-struct NodeListElem;
 
 struct TrajectList
 {
@@ -53,6 +44,8 @@ struct TrajectList
 					MinElem=Tmp;
 				}
 			}
+			if(Pointer==NULL)
+				return 0;
 			Traject* Tmp=Pointer->Trajetory;
 			Pointer->Trajetory=MinElem->Trajetory;
 			MinElem->Trajetory=Tmp;
@@ -67,10 +60,74 @@ struct TrajectList
 	}
 };
 
+struct ListOfID
+{
+	int Elem;
+	ListOfID *Next;
+};
+
+struct LeafOfTraject
+{
+	int ID_Leaf;
+	TrajectList *Trajectories;
+	
+	LeafOfTraject()
+	{
+		this->ID_Leaf=0;
+		this->Trajectories=NULL;
+	}
+
+	void InsertTrajectory(Traject *Trajectory)
+	{
+		TrajectList* Elem=new TrajectList;
+		if(this->Trajectories==NULL)
+		{
+			Elem->Trajetory=Trajectory;
+			Elem->Next=this->Trajectories;
+			this->Trajectories=Elem;
+			return;
+		}
+		for(TrajectList *Tmp = this->Trajectories; Tmp; Tmp=Tmp->Next)
+		{
+			if(Tmp->Next==NULL)
+			{
+				Elem->Trajetory=Trajectory;
+				Elem->Next=Tmp->Next;
+				Tmp->Next=Elem;
+				return;
+			}
+		}
+	}
+
+};
+
+struct ListOfLeafs
+{
+	LeafOfTraject *Elem;
+	ListOfLeafs *Next;
+	bool IncludedInList(ListOfID* IDs)
+	{
+		for(ListOfID *Tmp=IDs; Tmp; Tmp=Tmp->Next)
+		{
+			if(this->Elem->ID_Leaf==Tmp->Elem)
+				return true;
+		}
+		return false;
+	}
+};
+
+struct TrajectObj
+{
+	int Number;
+	int X;
+	int Y;
+};
+
+struct NodeListElem;
+
 class Node
 {
 private:
-	
 	MBR *Mbr;
 	int DecExtend;
 	int BranchingFactor;
@@ -151,9 +208,7 @@ public:
 		}
 		return NULL;
 	}
-
 	void ExpMBRNode();
-
 	void ExpMBRTraject()
 	{
 		MBR *CurrentMBR=this->GetMBR();
@@ -216,4 +271,176 @@ struct TBNodeListElem
 {
 	TBNode *Elem;
 	TBNodeListElem *Next;
+};
+
+struct RTreeNodeLeafList;
+
+
+class RTreeNodeLeaf
+{
+private:
+	int ColLeaf;
+	int BranchingFactor;
+	Range *IDRange;
+	int Col;
+public:
+	ListOfLeafs *Leafs;
+	RTreeNodeLeafList *Childs;
+	RTreeNodeLeaf(int BranchingFactor);
+	RTreeNodeLeaf* NodePartitionLeaf(LeafOfTraject *NewLeaf);
+	RTreeNodeLeaf* NodePartitionNode(RTreeNodeLeaf *NewNode);
+	void InsertLeaf(LeafOfTraject *NewLeaf);
+	bool InsertNode(RTreeNodeLeaf *NewNode);
+	bool Intersection(RTreeNodeLeaf *Node);
+	void ExpRangeNode();
+	bool Leaf()
+	{
+		if(this->Childs!=NULL)
+			return false;
+		return true;
+	}
+	bool FullTraject()
+	{
+		if(this->ColLeaf<this->BranchingFactor)
+			return false;
+		return true;
+	}
+	int GetFactor()
+	{
+		return this->BranchingFactor;
+	}
+	void IncColLeafs()
+	{
+		this->ColLeaf++;
+	}
+	bool Full()
+	{
+		if(this->Col>=this->BranchingFactor)
+			return true;
+		return false;
+	}
+	void IncCol()
+	{
+		this->Col++;
+	}
+	Range *GetRange()
+	{
+		return this->IDRange;
+	}
+	void ExpRangeLeafs()
+	{
+		Range *CurrentRange=this->GetRange();
+		CurrentRange->ID0=CurrentRange->ID1=-1;
+		for(ListOfLeafs *Tmp = this->Leafs; Tmp; Tmp=Tmp->Next)
+		{
+			if(Tmp->Elem->ID_Leaf > CurrentRange->ID1 || CurrentRange->ID1==-1)
+				CurrentRange->ID1=Tmp->Elem->ID_Leaf;
+			if(Tmp->Elem->ID_Leaf < CurrentRange->ID0 || CurrentRange->ID0==-1)
+				CurrentRange->ID0=Tmp->Elem->ID_Leaf;
+		}
+	}
+	bool IntersectionDot(int ID)
+	{
+		if(this->IDRange->ID0<=ID && this->IDRange->ID1>=ID)
+			return true;
+		return false;
+	}
+	bool IncludedInList(ListOfID* IDs)
+	{
+		for(ListOfID *Tmp=IDs; Tmp; Tmp=Tmp->Next)
+		{
+			if(this->IntersectionDot(Tmp->Elem))
+				return true;
+		}
+		return false;
+	}
+	
+};
+
+struct RTreeNodeLeafList
+{
+	RTreeNodeLeaf *Elem;
+	RTreeNodeLeafList *Next;
+};
+
+struct RTreeNodeTimeList;
+
+class RTreeNodeTime
+{
+private:
+	int ColLeaf;
+	int BranchingFactor;
+	TimeRange *TRange;
+	int Col;
+public:
+	ListOfID *IDs;
+	RTreeNodeTimeList *Childs;
+	RTreeNodeTime(int BranchingFactor);
+	RTreeNodeTime* NodePartitionID(int ID, int T);
+	RTreeNodeTime* NodePartitionNode(RTreeNodeTime *NewNode);
+	void InsertID(int ID);
+	bool InsertNode(RTreeNodeTime *NewNode);
+	bool Intersection(RTreeNodeTime *Node);
+	void ExpTRangeNode(int T);
+	bool Leaf()
+	{
+		if(this->Childs!=NULL)
+			return false;
+		return true;
+	}
+	bool FullTraject()
+	{
+		if(this->ColLeaf<this->BranchingFactor)
+			return false;
+		return true;
+	}
+	int GetFactor()
+	{
+		return this->BranchingFactor;
+	}
+	void IncColLeafs()
+	{
+		this->ColLeaf++;
+	}
+	bool Full()
+	{
+		if(this->Col>=this->BranchingFactor)
+			return true;
+		return false;
+	}
+	void IncCol()
+	{
+		this->Col++;
+	}
+	TimeRange *GetRange()
+	{
+		return this->TRange;
+	}
+	void ExpTRange(int T)
+	{
+		TimeRange *CurrentRange=this->GetRange();
+		//CurrentRange->T0=CurrentRange->T1=T;
+		if(this->ColLeaf==1)
+			CurrentRange->T0=CurrentRange->T1=T;
+		if(CurrentRange->T1<T)
+			CurrentRange->T1=T;
+	}
+	bool IntersectionDot(int T)
+	{
+		if(this->TRange->T0>=T && this->TRange->T1<=T)
+			return true;
+		return false;
+	}
+	bool IntersectionRange(TimeRange *TR)
+	{
+		if(this->TRange->T0 > TR->T1 || this->TRange->T1 < TR->T0)
+			return false;
+		return true;
+	}
+};
+
+struct RTreeNodeTimeList
+{
+	RTreeNodeTime *Elem;
+	RTreeNodeTimeList *Next;
 };

@@ -19,21 +19,31 @@
 #include <time.h>
 #include "STR-TREE.h"
 #include "TB-tree.h"
+#include "SETI.h"
 
 HINSTANCE hInst;
 static int dTimerCommon, nTimerCommon, dTimerSec, nTimerSec, TimerVal;
 int ProgressBarPos;
+int NumOfQueries = 0;
 bool IsRecordComplited, IsIndexingComplited;
 HWND ProgressBar;
 HWND MainDlg;
 HWND ComboBox;
 HWND ButtonQuery;
 HWND ListBox;
+HWND ButtonStartIndexing;
+HWND EditIDs;
+HWND ComboNumQ;
 HDC MainDC;
 TmpIndexingData CurrentIndexingData;
 TmpQueryData CurrentQueryData;
+WCHAR bufNumOfQueries[10];
+QueryData QueryHistory[100];
+
 StrTree STR_tree(4, 10);
 TBtree TB_tree(3, 10);
+SETI* seti;
+
 int x1;
 int x2;
 int y;
@@ -104,7 +114,7 @@ void PaintKoordLines(HWND hWnd, HDC hDC)
 	MoveToEx(hDC, 400, 470, NULL);
 	LineTo(hDC, 412, 450);
 }
-
+int nItem = 0;
 BOOL CALLBACK MainDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch(msg)
@@ -154,6 +164,46 @@ BOOL CALLBACK MainDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 							Rectangle(hDC, 545, 32, 595, 82);
 							ReleaseDC(hWnd, hDC);
 						}
+						
+					}; break;
+					case IDC_LIST2:
+					{
+						if (HIWORD(wParam) == LBN_SELCHANGE)
+						{
+							SendMessage(ListBox, LB_RESETCONTENT, 0, 0);
+							nItem = 0;
+							WCHAR tmpID[500];
+							int col = 0;
+							int qn = SendMessage(ComboNumQ, LB_GETCURSEL, 0, 0);
+							int kp = 0;
+							for (int i = 0; i < QueryHistory[qn].NumOfQueryObjects; i++)
+							{
+								HDC hDC = GetDC(MainDlg);
+								MoveToEx(hDC, QueryHistory[qn].Arr[i][0]->X, QueryHistory[qn].Arr[i][0]->Y, NULL);
+								int red = CurrentQueryData.currRed = rand()%210+30;
+								int green = CurrentQueryData.currGreen = rand()%210+30;
+								int blue = CurrentQueryData.currBlue = rand()%210+30;
+								HPEN hPen = CreatePen(PS_SOLID, 3, RGB(red,green,blue));
+								SelectPen(hDC, hPen);
+								for (int j = 1; j < QueryHistory[qn].Arr[i][0]->Number; j++)
+									LineTo(hDC, QueryHistory[qn].Arr[i][j]->X, QueryHistory[qn].Arr[i][j]->Y);
+								
+								CurrentQueryData.currTextColor = RGB(red, green, blue);
+								CurrentQueryData.Colors[i] = CurrentQueryData.currTextColor;
+								wsprintf(tmpID, L"");
+								wsprintf(tmpID, L"%d", QueryHistory[qn].IDs[i]);
+								nItem = SendMessage(ListBox, LB_ADDSTRING, 0, (LPARAM)tmpID);
+								SendMessage(ListBox, LB_SETITEMDATA, nItem, (LPARAM)CurrentQueryData.currTextColor);
+								ReleaseDC(MainDlg, hDC);
+								kp++;
+							}																														
+							int p = SendMessage(ListBox, LB_GETCURSEL, 0, 0);
+							HDC hDC = GetDC(hWnd);
+							HPEN hPen = CreatePen(PS_SOLID | PS_INSIDEFRAME, 30, CurrentQueryData.Colors[p]);
+							SelectPen(hDC, hPen);
+							Rectangle(hDC, 545, 32, 595, 82);
+							ReleaseDC(hWnd, hDC);
+						}
 					}; break;
 			}
 		}; break;
@@ -172,6 +222,7 @@ BOOL CALLBACK IndexingDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_INITDIALOG:
 		{
+			ButtonStartIndexing = GetDlgItem(hWnd, IDOK);
 			nTimerCommon = 1;
 			nTimerSec = 2;
 			TimerVal = 0;
@@ -215,6 +266,7 @@ BOOL CALLBACK IndexingDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 							MB_ICONINFORMATION);
 						break;
 					}
+					seti = new SETI(CurrentIndexingData.NumOfObjects, 480, 480, 40);
 					CurrentIndexingData.pnts1 = new POINT[CurrentIndexingData.NumOfObjects];
 					CurrentIndexingData.pnts2 = new POINT[CurrentIndexingData.NumOfObjects];
 					for (int i = 0; i < CurrentIndexingData.NumOfObjects; i++)
@@ -222,7 +274,7 @@ BOOL CALLBACK IndexingDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 						CurrentIndexingData.pnts1[i].x = rand()%400+11;
 						CurrentIndexingData.pnts1[i].y = rand()%402+32;
 
-						//SETI.Insert(CurrentIndexingData.pnts1[i].x, CurrentIndexingData.pnts1[i].y);
+						seti->InsertDot(CurrentIndexingData.pnts1[i].x, CurrentIndexingData.pnts1[i].y, 0, i);
 					}
 					SendMessage(ProgressBar, PBM_SETRANGE, 0, MAKELPARAM(0, CurrentIndexingData.IndexingInterval));
 					InvalidateRect(hWnd, NULL, true);
@@ -231,6 +283,8 @@ BOOL CALLBACK IndexingDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 					ReleaseDC(hWnd, tDC);
 					SetTimer(hWnd, nTimerCommon, CurrentIndexingData.IndexingInterval*1000, NULL);
 					SetTimer(hWnd, nTimerSec, 800, NULL);
+
+					EnableWindow(ButtonStartIndexing, FALSE);
 				}; break;
 			}
 		}; break;
@@ -242,7 +296,8 @@ BOOL CALLBACK IndexingDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				KillTimer(hWnd, nTimerSec);
 				MessageBox(hWnd, (LPCWSTR)L"Индексирование завершено!", (LPCWSTR)L"Готово", MB_OK | MB_ICONASTERISK);
 				EndDialog(hWnd, NULL);
-				EnableWindow(ButtonQuery, true);
+				EnableWindow(ButtonQuery, TRUE);
+				EnableWindow(ButtonStartIndexing, FALSE);
 			}
 			else if (wParam == nTimerSec && IsRecordComplited)
 			{
@@ -297,7 +352,7 @@ BOOL CALLBACK IndexingDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 					CurrentIndexingData.pnts2[i].x, CurrentIndexingData.pnts2[i].y, 1, i, TimerVal, TimerVal+1);
 					STR_tree.InsertTrajectory(NewTraject);
 					TB_tree.InsertTrajectory(NewTraject);
-					//SETI.Insert(CurrentIndexingData.pnts2[i].x, CurrentIndexingData.pnts2[i].y);
+					seti->InsertDot(CurrentIndexingData.pnts2[i].x, CurrentIndexingData.pnts2[i].y, TimerVal+1, i);
 					CurrentIndexingData.pnts1[i].x = CurrentIndexingData.pnts2[i].x;
 					CurrentIndexingData.pnts1[i].y = CurrentIndexingData.pnts2[i].y;
 
@@ -320,23 +375,46 @@ BOOL CALLBACK IndexingDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	}
 }
 
-int nItem = 0;
 BOOL CALLBACK QueryDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch(msg)
 	{
 		case WM_INITDIALOG:
 		{
+			ComboNumQ = GetDlgItem(MainDlg, IDC_LIST2);
+			EditIDs = GetDlgItem(hWnd, IDC_EDITIDS);
 			CurrentQueryData.IDs = new int[CurrentIndexingData.NumOfObjects];
 			for (int i = 0; i < CurrentIndexingData.NumOfObjects; i++)
 				CurrentQueryData.IDs[i] = i;
 		}; break;
 		case WM_COMMAND:
 		{
+			if (HIWORD(wParam) == EN_CHANGE)
+			{
+				if (lParam == (LPARAM)EditIDs)
+				{
+					WCHAR textbuf[1000];
+					GetDlgItemText(hWnd, IDC_EDITIDS, textbuf, 1000);
+					int len = lstrlen(textbuf);
+					for (int i = 0; i < len; i++)
+					{
+						if ((textbuf[i] != ',') && ((textbuf[i] < '0') || (textbuf[i] > '9')))
+						{
+							MessageBox(hWnd, L"Перечислите индексы объектов\nпо порядку через запятую", L"Некорректный ввод",
+								MB_ICONINFORMATION);
+							textbuf[i] = '\0';
+							SetDlgItemText(hWnd, IDC_EDITIDS, textbuf);
+							Edit_SetSel(EditIDs, i, i);
+							break;
+						}
+					}
+				}
+			}
 			switch (LOWORD(wParam))
 			{
 				case IDOK:
 					{
+						SendMessage(ListBox, LB_RESETCONTENT, 0, 0);
 						CurrentQueryData.NumOfQueryObjects = 0;
 						HWND IDsControl = GetDlgItem(hWnd, IDC_EDITIDS);
 						TCHAR ObjectsIDs[10240];
@@ -346,7 +424,7 @@ BOOL CALLBACK QueryDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 						int j = 0;
 						int k = 0;
 
-						for (int i = 0; i < 10240; i++)
+						for (int i = 0; i < 1000; i++)
 						{
 							if (ObjectsIDs[i] == 44 || ObjectsIDs[i] == 0)
 							{
@@ -366,17 +444,18 @@ BOOL CALLBACK QueryDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 						}
 
 						CurrentQueryData.IDs = new int[CurrentQueryData.NumOfQueryObjects];
+						QueryHistory[NumOfQueries].IDs = new int[CurrentQueryData.NumOfQueryObjects];
 						for (int i = 0; i < CurrentQueryData.NumOfQueryObjects; i++)
-							CurrentQueryData.IDs[i] = IDsint[i];
+							CurrentQueryData.IDs[i] = QueryHistory[NumOfQueries].IDs[i] = IDsint[i];
 
 						CurrentQueryData.Colors = new COLORREF[CurrentQueryData.NumOfQueryObjects];
 						
 						CurrentQueryData.TimeFrom = GetDlgItemInt(hWnd, IDC_EDIT2, false, false);
 						CurrentQueryData.TimeTo = GetDlgItemInt(hWnd, IDC_EDIT3, false, false);
-						CurrentQueryData.MBRx0 = GetDlgItemInt(hWnd, IDC_EDIT4, false, false);
-						CurrentQueryData.MBRy0 = GetDlgItemInt(hWnd, IDC_EDIT5, false, false);
-						CurrentQueryData.MBRx1 = GetDlgItemInt(hWnd, IDC_EDIT6, false, false);
-						CurrentQueryData.MBRy1 = GetDlgItemInt(hWnd, IDC_EDIT8, false, false);
+						CurrentQueryData.MBRx0 = 11 + GetDlgItemInt(hWnd, IDC_EDIT4, false, false);
+						CurrentQueryData.MBRy0 = 432 - GetDlgItemInt(hWnd, IDC_EDIT8, false, false);
+						CurrentQueryData.MBRx1 = 11 + GetDlgItemInt(hWnd, IDC_EDIT6, false, false);
+						CurrentQueryData.MBRy1 = 436 - GetDlgItemInt(hWnd, IDC_EDIT5, false, false);
 
 						WCHAR tmpID[5];
 
@@ -384,20 +463,39 @@ BOOL CALLBACK QueryDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 						//читай сигнатуры методов, кривая последовательность параметров при передаче в конструктор MBR
 						if (IsDlgButtonChecked(hWnd, IDC_RADIOSTR) == BST_CHECKED)
 						{
+							for (int k = 0; k < 100; k++)
+								for (int h = 0; h < 100; h++)
+										QueryHistory[NumOfQueries].Arr[k][h] = new TrajectObj;
+							TrajectObj* ArrSTR;
 							for (int i = 0; i < CurrentQueryData.NumOfQueryObjects; i++)
 							{
-								TrajectObj * ArrSTR = STR_tree.FindTrajectory(&MBR(CurrentQueryData.MBRy1, CurrentQueryData.MBRy0,
+								ArrSTR = STR_tree.FindTrajectory(&MBR(CurrentQueryData.MBRy1, CurrentQueryData.MBRy0,
 									CurrentQueryData.MBRx0, CurrentQueryData.MBRx1, CurrentQueryData.TimeFrom, CurrentQueryData.TimeTo),
 									CurrentQueryData.IDs[i], col);
+								
 								HDC hDC = GetDC(MainDlg);
 								MoveToEx(hDC, ArrSTR[0].X, ArrSTR[0].Y, NULL);
+								QueryHistory[NumOfQueries].Arr[i][0]->X = ArrSTR[0].X;
+								QueryHistory[NumOfQueries].Arr[i][0]->Y = ArrSTR[0].Y;
+								QueryHistory[NumOfQueries].Arr[i][0]->Number = col;
+								
 								int red = CurrentQueryData.currRed = rand()%210+30;
 								int green = CurrentQueryData.currGreen = rand()%210+30;
 								int blue = CurrentQueryData.currBlue = rand()%210+30;
 								HPEN hPen = CreatePen(PS_SOLID, 3, RGB(red,green,blue));
 								SelectPen(hDC, hPen);
+								if (col == 1)
+								{
+									MessageBox(hWnd, L"В указанной области\nв указанное время\nэтих объектов нет", L"Результат",
+										MB_ICONINFORMATION);
+									return FALSE;
+								}
 								for (int j = 1; j < col; j++)
+								{
 									LineTo(hDC, ArrSTR[j].X, ArrSTR[j].Y);
+									QueryHistory[NumOfQueries].Arr[i][j]->X = ArrSTR[j].X;
+									QueryHistory[NumOfQueries].Arr[i][j]->Y = ArrSTR[j].Y;
+								}
 								
 								CurrentQueryData.currTextColor = RGB(red, green, blue);
 								CurrentQueryData.Colors[i] = CurrentQueryData.currTextColor;
@@ -405,24 +503,56 @@ BOOL CALLBACK QueryDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 								nItem = SendMessage(ListBox, LB_ADDSTRING, 0, (LPARAM)tmpID);
 								SendMessage(ListBox, LB_SETITEMDATA, nItem, (LPARAM)CurrentQueryData.currTextColor);
 								ReleaseDC(MainDlg, hDC);
+								
+
 							}
+							QueryHistory[NumOfQueries].StructureType = IDC_RADIOSTR;
+							QueryHistory[NumOfQueries].MBRx0 = CurrentQueryData.MBRx0;
+							QueryHistory[NumOfQueries].MBRy0 = CurrentQueryData.MBRy0;
+							QueryHistory[NumOfQueries].MBRx1 = CurrentQueryData.MBRx1;
+							QueryHistory[NumOfQueries].MBRy1 = CurrentQueryData.MBRy1;
+							QueryHistory[NumOfQueries].NumOfQueryObjects = CurrentQueryData.NumOfQueryObjects;
+							QueryHistory[NumOfQueries].TimeFrom = CurrentQueryData.TimeFrom;
+							QueryHistory[NumOfQueries].TimeTo = CurrentQueryData.TimeTo;
+							wsprintf(bufNumOfQueries, L"%d", NumOfQueries);	
+							SendMessage(ComboNumQ, LB_ADDSTRING, 0, (LPARAM)bufNumOfQueries);
+							NumOfQueries++;
 						}
 						else if (IsDlgButtonChecked(hWnd, IDC_RADIOTB) == BST_CHECKED)
 						{
+							for (int k = 0; k < 100; k++)
+									for (int h = 0; h < 100; h++)
+										QueryHistory[NumOfQueries].Arr[k][h] = new TrajectObj;
+							TrajectObj* ArrTB;
 							for (int i = 0; i < CurrentQueryData.NumOfQueryObjects; i++)
 							{
-								TrajectObj * ArrTB = TB_tree.FindTrajectory(&MBR(CurrentQueryData.MBRy1, CurrentQueryData.MBRy0,
+								ArrTB = TB_tree.FindTrajectory(&MBR(CurrentQueryData.MBRy1, CurrentQueryData.MBRy0,
 									CurrentQueryData.MBRx0, CurrentQueryData.MBRx1, CurrentQueryData.TimeFrom, CurrentQueryData.TimeTo),
 									CurrentQueryData.IDs[i], col);
+								
 								HDC hDC = GetDC(MainDlg);
 								MoveToEx(hDC, ArrTB[0].X, ArrTB[0].Y, NULL);
+								QueryHistory[NumOfQueries].Arr[i][0]->X = ArrTB[0].X;
+								QueryHistory[NumOfQueries].Arr[i][0]->Y = ArrTB[0].Y;
+								QueryHistory[NumOfQueries].Arr[i][0]->Number = col;
+								
 								int red = CurrentQueryData.currRed = rand()%210+30;
 								int green = CurrentQueryData.currGreen = rand()%210+30;
 								int blue = CurrentQueryData.currBlue = rand()%210+30;
 								HPEN hPen = CreatePen(PS_SOLID, 3, RGB(red,green,blue));
 								SelectPen(hDC, hPen);
+								if (col == 1)
+								{
+									MessageBox(hWnd, L"В указанной области\nв указанное время\nэтих объектов нет", L"Результат",
+										MB_ICONINFORMATION);
+									return FALSE;
+								}
 								for (int j = 1; j < col; j++)
+								{
 									LineTo(hDC, ArrTB[j].X, ArrTB[j].Y);
+									QueryHistory[NumOfQueries].Arr[i][j]->X = ArrTB[j].X;
+									QueryHistory[NumOfQueries].Arr[i][j]->Y = ArrTB[j].Y;
+								}
 								
 								CurrentQueryData.currTextColor = RGB(red, green, blue);
 								CurrentQueryData.Colors[i] = CurrentQueryData.currTextColor;
@@ -430,11 +560,76 @@ BOOL CALLBACK QueryDlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 								nItem = SendMessage(ListBox, LB_ADDSTRING, 0, (LPARAM)tmpID);
 								SendMessage(ListBox, LB_SETITEMDATA, nItem, (LPARAM)CurrentQueryData.currTextColor);
 								ReleaseDC(MainDlg, hDC);
+								
+
 							}
+							QueryHistory[NumOfQueries].StructureType = IDC_RADIOSTR;
+							QueryHistory[NumOfQueries].MBRx0 = CurrentQueryData.MBRx0;
+							QueryHistory[NumOfQueries].MBRy0 = CurrentQueryData.MBRy0;
+							QueryHistory[NumOfQueries].MBRx1 = CurrentQueryData.MBRx1;
+							QueryHistory[NumOfQueries].MBRy1 = CurrentQueryData.MBRy1;
+							QueryHistory[NumOfQueries].NumOfQueryObjects = CurrentQueryData.NumOfQueryObjects;
+							QueryHistory[NumOfQueries].TimeFrom = CurrentQueryData.TimeFrom;
+							QueryHistory[NumOfQueries].TimeTo = CurrentQueryData.TimeTo;
+							wsprintf(bufNumOfQueries, L"%d", NumOfQueries);	
+							SendMessage(ComboNumQ, LB_ADDSTRING, 0, (LPARAM)bufNumOfQueries);
+							NumOfQueries++;
 						}
 						else if (IsDlgButtonChecked(hWnd, IDC_RADIOSETI) == BST_CHECKED)
 						{
-							//то же самое для SETI.
+							for (int k = 0; k < 100; k++)
+									for (int h = 0; h < 100; h++)
+										QueryHistory[NumOfQueries].Arr[k][h] = new TrajectObj;
+							TrajectObj* ArrSETI;
+							for (int i = 0; i < CurrentQueryData.NumOfQueryObjects; i++)
+							{
+								ArrSETI = seti->FindTrajectory(&MBR(CurrentQueryData.MBRy1, CurrentQueryData.MBRy0,
+									CurrentQueryData.MBRx0, CurrentQueryData.MBRx1, CurrentQueryData.TimeFrom, CurrentQueryData.TimeTo),
+									CurrentQueryData.IDs[i], col);
+								
+								HDC hDC = GetDC(MainDlg);
+								MoveToEx(hDC, ArrSETI[0].X, ArrSETI[0].Y, NULL);
+								QueryHistory[NumOfQueries].Arr[i][0]->X = ArrSETI[0].X;
+								QueryHistory[NumOfQueries].Arr[i][0]->Y = ArrSETI[0].Y;
+								QueryHistory[NumOfQueries].Arr[i][0]->Number = col;
+								
+								int red = CurrentQueryData.currRed = rand()%210+30;
+								int green = CurrentQueryData.currGreen = rand()%210+30;
+								int blue = CurrentQueryData.currBlue = rand()%210+30;
+								HPEN hPen = CreatePen(PS_SOLID, 3, RGB(red,green,blue));
+								SelectPen(hDC, hPen);
+								if (col == 1)
+								{
+									MessageBox(hWnd, L"В указанной области\nв указанное время\nэтих объектов нет", L"Результат",
+										MB_ICONINFORMATION);
+									return FALSE;
+								}
+								for (int j = 1; j < col; j++)
+								{
+									LineTo(hDC, ArrSETI[j].X, ArrSETI[j].Y);
+									QueryHistory[NumOfQueries].Arr[i][j]->X = ArrSETI[j].X;
+									QueryHistory[NumOfQueries].Arr[i][j]->Y = ArrSETI[j].Y;
+								}
+								
+								CurrentQueryData.currTextColor = RGB(red, green, blue);
+								CurrentQueryData.Colors[i] = CurrentQueryData.currTextColor;
+								wsprintf(tmpID, L"%d", CurrentQueryData.IDs[i]);
+								nItem = SendMessage(ListBox, LB_ADDSTRING, 0, (LPARAM)tmpID);
+								SendMessage(ListBox, LB_SETITEMDATA, nItem, (LPARAM)CurrentQueryData.currTextColor);
+								ReleaseDC(MainDlg, hDC);
+
+							}
+							QueryHistory[NumOfQueries].StructureType = IDC_RADIOSTR;
+							QueryHistory[NumOfQueries].MBRx0 = CurrentQueryData.MBRx0;
+							QueryHistory[NumOfQueries].MBRy0 = CurrentQueryData.MBRy0;
+							QueryHistory[NumOfQueries].MBRx1 = CurrentQueryData.MBRx1;
+							QueryHistory[NumOfQueries].MBRy1 = CurrentQueryData.MBRy1;
+							QueryHistory[NumOfQueries].NumOfQueryObjects = CurrentQueryData.NumOfQueryObjects;
+							QueryHistory[NumOfQueries].TimeFrom = CurrentQueryData.TimeFrom;
+							QueryHistory[NumOfQueries].TimeTo = CurrentQueryData.TimeTo;
+							wsprintf(bufNumOfQueries, L"%d", NumOfQueries);	
+							SendMessage(ComboNumQ, LB_ADDSTRING, 0, (LPARAM)bufNumOfQueries);
+							NumOfQueries++;
 						}
 						else //ничего не выбрано
 						{

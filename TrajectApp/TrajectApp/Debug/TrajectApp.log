@@ -1,44 +1,22 @@
-﻿Build started 14.05.2015 2:05:55.
-     1>Project "C:\Users\Григорий\documents\visual studio 2010\Projects\TrajectApp\TrajectApp\TrajectApp.vcxproj" on node 2 (build target(s)).
+﻿Build started 18.05.2015 23:24:23.
+     1>Project "C:\Users\Григорий\Documents\Visual Studio 2010\Projects\TrajectApp\TrajectApp\TrajectApp.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
-         Touching "Debug\TrajectApp.unsuccessfulbuild".
+         Creating "Debug\TrajectApp.unsuccessfulbuild" because "AlwaysCreate" was specified.
        ClCompile:
-         c:\Program Files\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt main.cpp
-         main.cpp
-     1>c:\users\григорий\documents\visual studio 2010\projects\trajectapp\trajectapp\node.h(45): warning C4305: 'initializing' : truncation from '__int64' to 'int'
-     1>c:\users\григорий\documents\visual studio 2010\projects\trajectapp\trajectapp\node.h(45): warning C4309: 'initializing' : truncation of constant value
-     1>c:\users\григорий\documents\visual studio 2010\projects\trajectapp\trajectapp\node.h(64): warning C4305: '=' : truncation from '__int64' to 'int'
-     1>c:\users\григорий\documents\visual studio 2010\projects\trajectapp\trajectapp\node.h(64): warning C4309: '=' : truncation of constant value
-     1>c:\users\григорий\documents\visual studio 2010\projects\trajectapp\trajectapp\str-tree.h(55): warning C4244: 'return' : conversion from 'double' to 'int', possible loss of data
-     1>c:\users\григорий\documents\visual studio 2010\projects\trajectapp\trajectapp\main.cpp(196): warning C4244: 'argument' : conversion from 'time_t' to 'unsigned int', possible loss of data
-     1>c:\users\григорий\documents\visual studio 2010\projects\trajectapp\trajectapp\main.cpp(253): warning C4244: 'argument' : conversion from 'time_t' to 'unsigned int', possible loss of data
-     1>c:\users\григорий\documents\visual studio 2010\projects\trajectapp\trajectapp\main.cpp(167): warning C4715: 'MainDlgProc' : not all control paths return a value
-     1>c:\users\григорий\documents\visual studio 2010\projects\trajectapp\trajectapp\main.cpp(321): warning C4715: 'IndexingDlgProc' : not all control paths return a value
-     1>c:\users\григорий\documents\visual studio 2010\projects\trajectapp\trajectapp\main.cpp(454): warning C4715: 'QueryDlgProc' : not all control paths return a value
+         All outputs are up-to-date.
        ResourceCompile:
          All outputs are up-to-date.
        ManifestResourceCompile:
          All outputs are up-to-date.
        Link:
-         c:\Program Files\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Григорий\documents\visual studio 2010\Projects\TrajectApp\Debug\TrajectApp.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\TrajectApp.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\Григорий\documents\visual studio 2010\Projects\TrajectApp\Debug\TrajectApp.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Григорий\documents\visual studio 2010\Projects\TrajectApp\Debug\TrajectApp.lib" /MACHINE:X86 Debug\TrajectApp.res
-         Debug\TrajectApp.exe.embed.manifest.res
-         Debug\main.obj
-         Debug\Node.obj
-         Debug\Stack.obj
-         "Debug\STR-TREE.obj"
-         "Debug\TB-tree.obj"
-         Debug\Trajectory.obj
+         All outputs are up-to-date.
        Manifest:
-         c:\Program Files\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /out:"Debug\TrajectApp.exe.embed.manifest" /manifest Debug\TrajectApp.exe.intermediate.manifest
          All outputs are up-to-date.
-       LinkEmbedManifest:
-         All outputs are up-to-date.
-         TrajectApp.vcxproj -> C:\Users\Григорий\documents\visual studio 2010\Projects\TrajectApp\Debug\TrajectApp.exe
        FinalizeBuildStatus:
          Deleting file "Debug\TrajectApp.unsuccessfulbuild".
          Touching "Debug\TrajectApp.lastbuildstate".
-     1>Done Building Project "C:\Users\Григорий\documents\visual studio 2010\Projects\TrajectApp\TrajectApp\TrajectApp.vcxproj" (build target(s)).
+     1>Done Building Project "C:\Users\Григорий\Documents\Visual Studio 2010\Projects\TrajectApp\TrajectApp\TrajectApp.vcxproj" (build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:02.79
+Time Elapsed 00:00:00.20

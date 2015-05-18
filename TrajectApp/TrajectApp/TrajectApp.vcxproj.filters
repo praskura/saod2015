@@ -33,6 +33,15 @@
     <ClCompile Include="TB-tree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="R_tree_leaf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="R_tree_time.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SETI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">
@@ -57,6 +66,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Trajectory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IDRange.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="R_tree_leaf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="R_tree_time.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SETI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

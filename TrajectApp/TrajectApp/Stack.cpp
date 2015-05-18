@@ -1,3 +1,4 @@
+//#include "stdafx.h"
 #include "Stack.h"
 
 NodeStack::NodeStack()
@@ -77,3 +78,82 @@ TBNodeStack:: ~TBNodeStack()
 {
 	this->Delete();
 }
+
+RTreeLeafNodeStack::RTreeLeafNodeStack()
+{
+	this->Head=NULL;
+}
+
+void RTreeLeafNodeStack::Push(RTreeNodeLeaf *Inserted)
+{
+	RTreeLeafElem *Tmp=new RTreeLeafElem;
+	Tmp->Elem=Inserted;
+	Tmp->Next=this->Head;
+	this->Head=Tmp;
+}
+
+RTreeNodeLeaf* RTreeLeafNodeStack::Pop()
+{
+	if(this->Head==NULL)
+		return NULL;
+	RTreeLeafElem* Elem=this->Head;
+	this->Head=this->Head->Next;
+	RTreeNodeLeaf *TmpElem=Elem->Elem;
+	delete Elem;
+	return TmpElem;
+}
+
+void RTreeLeafNodeStack::Delete()
+{
+	while(this->Pop());
+}
+
+RTreeNodeLeaf* RTreeLeafNodeStack::Look()
+{
+	return this->Head->Elem;
+}
+
+RTreeLeafNodeStack:: ~RTreeLeafNodeStack()
+{
+	this->Delete();
+}
+
+RTreeTimeNodeStack::RTreeTimeNodeStack()
+{
+	this->Head=NULL;
+}
+
+void RTreeTimeNodeStack::Push(RTreeNodeTime *Inserted)
+{
+	RTreeTimeElem *Tmp=new RTreeTimeElem;
+	Tmp->Elem=Inserted;
+	Tmp->Next=this->Head;
+	this->Head=Tmp;
+}
+
+RTreeNodeTime* RTreeTimeNodeStack::Pop()
+{
+	if(this->Head==NULL)
+		return NULL;
+	RTreeTimeElem* Elem=this->Head;
+	this->Head=this->Head->Next;
+	RTreeNodeTime *TmpElem=Elem->Elem;
+	delete Elem;
+	return TmpElem;
+}
+
+void RTreeTimeNodeStack::Delete()
+{
+	while(this->Pop());
+}
+
+RTreeNodeTime* RTreeTimeNodeStack::Look()
+{
+	return this->Head->Elem;
+}
+
+RTreeTimeNodeStack:: ~RTreeTimeNodeStack()
+{
+	this->Delete();
+}
+	

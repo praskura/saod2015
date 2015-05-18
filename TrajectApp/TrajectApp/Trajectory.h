@@ -1,6 +1,7 @@
 #pragma once
+//#include "stdafx.h"
 //#include "Node.h"
-
+#define NULL 0
 //struct MBR;
 
 struct Traject

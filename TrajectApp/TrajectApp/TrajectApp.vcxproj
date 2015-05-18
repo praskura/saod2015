@@ -79,15 +79,22 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Node.cpp" />
+    <ClCompile Include="R_tree_leaf.cpp" />
+    <ClCompile Include="R_tree_time.cpp" />
+    <ClCompile Include="SETI.cpp" />
     <ClCompile Include="Stack.cpp" />
     <ClCompile Include="STR-TREE.cpp" />
     <ClCompile Include="TB-tree.cpp" />
     <ClCompile Include="Trajectory.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="IDRange.h" />
     <ClInclude Include="MBR.h" />
     <ClInclude Include="Node.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="R_tree_leaf.h" />
+    <ClInclude Include="R_tree_time.h" />
+    <ClInclude Include="SETI.h" />
     <ClInclude Include="Stack.h" />
     <ClInclude Include="STR-TREE.h" />
     <ClInclude Include="TB-tree.h" />

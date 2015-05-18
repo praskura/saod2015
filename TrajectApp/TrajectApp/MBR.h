@@ -1,4 +1,5 @@
 #pragma once
+//#include "stdafx.h"
 #include "Trajectory.h"
 
 struct MBR
@@ -62,6 +63,20 @@ public:
 	bool Intersection(MBR &Tmp)
 	{
 		if(Tmp.Left>this->Right || Tmp.Right<this->Left ||  Tmp.Top< this->Bottom || Tmp.Bottom>this->Top || Tmp.T0>this->T1 || Tmp.T1<this->T0)
+			return false;
+		return true;
+	}
+
+	bool IntersectionSETITime(MBR &Tmp)
+	{
+		if((Tmp.Left >= this->Left && Tmp.Right <= this->Right) && (Tmp.Bottom >= this->Bottom && Tmp.Top <= this->Top) && (Tmp.T0>=this->T0 && Tmp.T1<=this->T1))
+			return true;
+		return false;
+	}
+
+	bool IntersectionSETI(MBR &Tmp)
+	{
+		if(Tmp.Left>this->Right || Tmp.Right<this->Left ||  Tmp.Top< this->Bottom || Tmp.Bottom>this->Top)
 			return false;
 		return true;
 	}

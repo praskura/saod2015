@@ -1,5 +1,6 @@
+//#include "stdafx.h"
 #include "Node.h"
-#define NULL 0
+
 void Node::ExpMBRNode()
 {
 	MBR *CurrentMBR=this->GetMBR();
@@ -331,4 +332,211 @@ void TBNode::ExpMBRNode()
 	}
 	else
 		this->ExpMBRTraject();
+}
+
+
+RTreeNodeLeaf::RTreeNodeLeaf(int BranchingFactor)
+{
+	this->BranchingFactor=BranchingFactor;
+	this->Childs=NULL;
+	this->ColLeaf=0;
+	this->IDRange=new Range;
+	this->Leafs=NULL;
+	this->Col=0;
+}
+
+RTreeNodeLeaf* RTreeNodeLeaf::NodePartitionLeaf(LeafOfTraject *NewLeaf)
+{
+	RTreeNodeLeaf *NewNode=new RTreeNodeLeaf(this->GetFactor());
+	NewNode->InsertLeaf(NewLeaf);
+	NewNode->ExpRangeNode();
+	return NewNode;
+}
+
+RTreeNodeLeaf* RTreeNodeLeaf::NodePartitionNode(RTreeNodeLeaf *NewNode)
+{
+	RTreeNodeLeaf *NewRTreeLeafNode=new RTreeNodeLeaf(this->GetFactor());
+	NewRTreeLeafNode->InsertNode(NewNode);
+	NewRTreeLeafNode->ExpRangeNode();
+	return NewRTreeLeafNode;
+}
+
+void RTreeNodeLeaf::InsertLeaf(LeafOfTraject *NewLeaf)
+{
+	ListOfLeafs* Elem=new ListOfLeafs;
+	if(this->Leafs==NULL)
+	{
+		Elem->Elem=NewLeaf;
+		Elem->Next=this->Leafs;
+		this->Leafs=Elem;
+		this->IncColLeafs();
+		//this->ExpMBRTraject();
+		this->ExpRangeLeafs();
+		return;
+	}
+	for(ListOfLeafs *Tmp = this->Leafs; Tmp; Tmp=Tmp->Next)
+	{
+		if(Tmp->Next==NULL)
+		{
+			Elem->Elem=NewLeaf;
+			Elem->Next=NULL;
+			Tmp->Next=Elem;
+			this->IncColLeafs();
+			//this->ExpMBRTraject();
+			this->ExpRangeLeafs();
+			return;
+		}
+	}
+}
+
+bool RTreeNodeLeaf::InsertNode(RTreeNodeLeaf *NewNode)
+{
+	if(!this->Full())
+	{
+		RTreeNodeLeafList* Elem=new RTreeNodeLeafList;
+		if(this->Childs==NULL)
+		{
+			Elem->Elem=NewNode;
+			Elem->Next=this->Childs;
+			this->Childs=Elem;
+			this->IncCol();
+			return true;
+		}
+		for(RTreeNodeLeafList *Temp=this->Childs; Temp; Temp=Temp->Next)
+		{
+			if(Temp->Next==NULL)
+			{
+				Elem->Elem=NewNode;
+				Elem->Next=Temp->Next;
+				Temp->Next=Elem;
+				this->IncCol();
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+bool RTreeNodeLeaf::Intersection(RTreeNodeLeaf *Node)
+{
+	Range *Tmp=Node->GetRange();
+	return this->IDRange->Intersection(Tmp);
+}
+
+void RTreeNodeLeaf::ExpRangeNode()
+{
+	
+	Range *CurrentRange=this->GetRange();
+	CurrentRange->ID0=CurrentRange->ID1=-1;
+	if(!this->Leaf())
+	{
+		for(RTreeNodeLeafList *Tmp = this->Childs; Tmp; Tmp=Tmp->Next)
+			CurrentRange->ExpRange(Tmp->Elem->GetRange());
+	}
+	else
+		this->ExpRangeLeafs();
+
+}
+
+
+RTreeNodeTime::RTreeNodeTime(int BranchingFactor)
+{
+	this->BranchingFactor=BranchingFactor;
+	this->Childs=NULL;
+	this->ColLeaf=0;
+	this->TRange=new TimeRange;
+	this->IDs=NULL;
+	this->Col=0;
+}
+
+RTreeNodeTime* RTreeNodeTime::NodePartitionID(int ID,int T)
+{
+	RTreeNodeTime *NewNode=new RTreeNodeTime(this->GetFactor());
+	NewNode->InsertID(ID);
+
+	NewNode->ExpTRangeNode(T);
+	return NewNode;
+}
+
+RTreeNodeTime* RTreeNodeTime::NodePartitionNode(RTreeNodeTime *NewNode)
+{
+	RTreeNodeTime *NewRTreeLeafNode=new RTreeNodeTime(this->GetFactor());
+	NewRTreeLeafNode->InsertNode(NewNode);
+	NewRTreeLeafNode->ExpTRangeNode(0);
+	return NewRTreeLeafNode;
+}
+
+void RTreeNodeTime::InsertID(int ID)
+{
+	ListOfID* Elem=new ListOfID;
+	if(this->IDs==NULL)
+	{
+		Elem->Elem=ID;
+		Elem->Next=this->IDs;
+		this->IDs=Elem;
+		this->IncColLeafs();
+		//this->ExpMBRTraject();
+		return;
+	}
+	for(ListOfID *Tmp = this->IDs; Tmp; Tmp=Tmp->Next)
+	{
+		if(Tmp->Next==NULL)
+		{
+			Elem->Elem=ID;
+			Elem->Next=this->IDs;
+			this->IDs=Elem;
+			this->IncColLeafs();
+			//this->ExpMBRTraject();
+			return;
+		}
+	}
+}
+
+bool RTreeNodeTime::InsertNode(RTreeNodeTime *NewNode)
+{
+	if(!this->Full())
+	{
+		RTreeNodeTimeList* Elem=new RTreeNodeTimeList;
+		if(this->Childs==NULL)
+		{
+			Elem->Elem=NewNode;
+			Elem->Next=this->Childs;
+			this->Childs=Elem;
+			this->IncCol();
+			return true;
+		}
+		for(RTreeNodeTimeList *Temp=this->Childs; Temp; Temp=Temp->Next)
+		{
+			if(Temp->Next==NULL)
+			{
+				Elem->Elem=NewNode;
+				Elem->Next=Temp->Next;
+				Temp->Next=Elem;
+				this->IncCol();
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+bool RTreeNodeTime::Intersection(RTreeNodeTime *Node)
+{
+	TimeRange *Tmp=Node->GetRange();
+	return this->TRange->Intersection(Tmp);
+}
+
+void RTreeNodeTime::ExpTRangeNode(int T)
+{
+	
+	TimeRange *CurrentRange=this->GetRange();
+	//CurrentRange->T0=CurrentRange->T1=-1;
+	if(!this->Leaf())
+	{
+		for(RTreeNodeTimeList *Tmp = this->Childs; Tmp; Tmp=Tmp->Next)
+			CurrentRange->ExpRange(Tmp->Elem->GetRange());
+	}
+	else
+		this->ExpTRange(T);
+
 }
